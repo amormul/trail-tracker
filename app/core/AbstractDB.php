@@ -14,6 +14,10 @@ class AbstractDB
     {
         $this->db = $this->getConnection();
     }
+
+    /**
+     * @return \mysqli
+     */
     public function getConnection(): \mysqli
     {
         $db = new \mysqli(conf('DB_HOST'), conf('DB_USER'), conf('DB_PASS'), conf('DB_NAME'));
@@ -22,6 +26,12 @@ class AbstractDB
         }
         return $db;
     }
+
+    /**
+     * @param string $table
+     * @param int $id
+     * @return array|null
+     */
     public function getById(string $table, int $id) : array | null
     {
         $query = "SELECT * FROM $table WHERE route_id = ?";

@@ -10,7 +10,6 @@ abstract class AbstractController
     {
         $this->view = new View();
         $session = new Session();
-        $session->login = 'admin';
     }
     public function getCurrentUserId(): int
     {

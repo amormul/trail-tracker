@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Хост: 127.0.0.1:3306
--- Время создания: Дек 13 2024 г., 19:26
--- Версия сервера: 8.0.30
--- Версия PHP: 8.1.9
+-- Час створення: Гру 15 2024 р., 13:42
+-- Версія сервера: 8.0.30
+-- Версія PHP: 8.1.9
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -18,13 +18,13 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- База данных: `hikeSite`
+-- База даних: `hikeSite`
 --
 
 -- --------------------------------------------------------
 
 --
--- Структура таблицы `difficulties`
+-- Структура таблиці `difficulties`
 --
 
 CREATE TABLE `difficulties` (
@@ -36,22 +36,22 @@ CREATE TABLE `difficulties` (
 -- --------------------------------------------------------
 
 --
--- Структура таблицы `gallery`
+-- Структура таблиці `gallery`
 --
 
 CREATE TABLE `gallery` (
   `id` int UNSIGNED NOT NULL,
-  `user_id` int UNSIGNED NOT NULL,
+  `user_id` int UNSIGNED DEFAULT NULL,
   `photo` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
   `trip_id` int UNSIGNED NOT NULL,
-  `deleted_at` timestamp NOT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
   `comment` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
 --
--- Структура таблицы `inventory`
+-- Структура таблиці `inventory`
 --
 
 CREATE TABLE `inventory` (
@@ -64,7 +64,7 @@ CREATE TABLE `inventory` (
 -- --------------------------------------------------------
 
 --
--- Структура таблицы `inventory_trip`
+-- Структура таблиці `inventory_trip`
 --
 
 CREATE TABLE `inventory_trip` (
@@ -76,7 +76,7 @@ CREATE TABLE `inventory_trip` (
 -- --------------------------------------------------------
 
 --
--- Структура таблицы `likes_photo`
+-- Структура таблиці `likes_photo`
 --
 
 CREATE TABLE `likes_photo` (
@@ -88,7 +88,7 @@ CREATE TABLE `likes_photo` (
 -- --------------------------------------------------------
 
 --
--- Структура таблицы `likes_route`
+-- Структура таблиці `likes_route`
 --
 
 CREATE TABLE `likes_route` (
@@ -100,7 +100,7 @@ CREATE TABLE `likes_route` (
 -- --------------------------------------------------------
 
 --
--- Структура таблицы `likes_trip`
+-- Структура таблиці `likes_trip`
 --
 
 CREATE TABLE `likes_trip` (
@@ -112,7 +112,7 @@ CREATE TABLE `likes_trip` (
 -- --------------------------------------------------------
 
 --
--- Структура таблицы `routes`
+-- Структура таблиці `routes`
 --
 
 CREATE TABLE `routes` (
@@ -125,7 +125,7 @@ CREATE TABLE `routes` (
 -- --------------------------------------------------------
 
 --
--- Структура таблицы `statuses`
+-- Структура таблиці `statuses`
 --
 
 CREATE TABLE `statuses` (
@@ -136,7 +136,7 @@ CREATE TABLE `statuses` (
 -- --------------------------------------------------------
 
 --
--- Структура таблицы `trips`
+-- Структура таблиці `trips`
 --
 
 CREATE TABLE `trips` (
@@ -153,223 +153,228 @@ CREATE TABLE `trips` (
 -- --------------------------------------------------------
 
 --
--- Структура таблицы `users`
+-- Структура таблиці `users`
 --
 
 CREATE TABLE `users` (
   `id` int UNSIGNED NOT NULL,
-  `name` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
+  `login` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
   `password` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
   `email` varchar(60) COLLATE utf8mb4_general_ci NOT NULL,
   `phone` varchar(20) COLLATE utf8mb4_general_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Индексы сохранённых таблиц
+-- Індекси збережених таблиць
 --
 
 --
--- Индексы таблицы `difficulties`
+-- Індекси таблиці `difficulties`
 --
 ALTER TABLE `difficulties`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `name` (`name`);
 
 --
--- Индексы таблицы `gallery`
+-- Індекси таблиці `gallery`
 --
 ALTER TABLE `gallery`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `status_id` (`deleted_at`),
   ADD KEY `trip_id` (`trip_id`),
   ADD KEY `user_id` (`user_id`);
 
 --
--- Индексы таблицы `inventory`
+-- Індекси таблиці `inventory`
 --
 ALTER TABLE `inventory`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `name` (`name`);
 
 --
--- Индексы таблицы `inventory_trip`
+-- Індекси таблиці `inventory_trip`
 --
 ALTER TABLE `inventory_trip`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `inventory_id` (`inventory_id`),
-  ADD KEY `trip_id` (`trip_id`);
+  ADD KEY `inventory_trip_ibfk_1` (`inventory_id`),
+  ADD KEY `inventory_trip_ibfk_2` (`trip_id`);
 
 --
--- Индексы таблицы `likes_photo`
+-- Індекси таблиці `likes_photo`
 --
 ALTER TABLE `likes_photo`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `photo_id` (`photo_id`);
+  ADD KEY `likes_photo_ibfk_1` (`photo_id`),
+  ADD KEY `user_id` (`user_id`);
 
 --
--- Индексы таблицы `likes_route`
+-- Індекси таблиці `likes_route`
 --
 ALTER TABLE `likes_route`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `route_id` (`route_id`);
+  ADD KEY `likes_route_ibfk_1` (`route_id`),
+  ADD KEY `user_id` (`user_id`);
 
 --
--- Индексы таблицы `likes_trip`
+-- Індекси таблиці `likes_trip`
 --
 ALTER TABLE `likes_trip`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `trip_id` (`trip_id`);
+  ADD KEY `likes_trip_ibfk_1` (`trip_id`),
+  ADD KEY `user_id` (`user_id`);
 
 --
--- Индексы таблицы `routes`
+-- Індекси таблиці `routes`
 --
 ALTER TABLE `routes`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `trip_id` (`trip_id`);
+  ADD KEY `routes_ibfk_1` (`trip_id`);
 
 --
--- Индексы таблицы `statuses`
+-- Індекси таблиці `statuses`
 --
 ALTER TABLE `statuses`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `name` (`name`);
 
 --
--- Индексы таблицы `trips`
+-- Індекси таблиці `trips`
 --
 ALTER TABLE `trips`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `name` (`name`),
-  ADD KEY `difficulty_id` (`difficulty_id`),
-  ADD KEY `user_id` (`user_id`),
-  ADD KEY `status_id` (`status_id`);
+  ADD KEY `trips_ibfk_2` (`user_id`),
+  ADD KEY `status_id` (`status_id`),
+  ADD KEY `difficulty_id` (`difficulty_id`);
 
 --
--- Индексы таблицы `users`
+-- Індекси таблиці `users`
 --
 ALTER TABLE `users`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `name` (`name`);
+  ADD UNIQUE KEY `login` (`login`);
 
 --
--- AUTO_INCREMENT для сохранённых таблиц
+-- AUTO_INCREMENT для збережених таблиць
 --
 
 --
--- AUTO_INCREMENT для таблицы `difficulties`
+-- AUTO_INCREMENT для таблиці `difficulties`
 --
 ALTER TABLE `difficulties`
   MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT для таблицы `gallery`
+-- AUTO_INCREMENT для таблиці `gallery`
 --
 ALTER TABLE `gallery`
   MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT для таблицы `inventory`
+-- AUTO_INCREMENT для таблиці `inventory`
 --
 ALTER TABLE `inventory`
   MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT для таблицы `inventory_trip`
+-- AUTO_INCREMENT для таблиці `inventory_trip`
 --
 ALTER TABLE `inventory_trip`
   MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT для таблицы `likes_photo`
+-- AUTO_INCREMENT для таблиці `likes_photo`
 --
 ALTER TABLE `likes_photo`
   MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT для таблицы `likes_route`
+-- AUTO_INCREMENT для таблиці `likes_route`
 --
 ALTER TABLE `likes_route`
   MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT для таблицы `likes_trip`
+-- AUTO_INCREMENT для таблиці `likes_trip`
 --
 ALTER TABLE `likes_trip`
   MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT для таблицы `routes`
+-- AUTO_INCREMENT для таблиці `routes`
 --
 ALTER TABLE `routes`
   MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT для таблицы `statuses`
+-- AUTO_INCREMENT для таблиці `statuses`
 --
 ALTER TABLE `statuses`
   MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT для таблицы `trips`
+-- AUTO_INCREMENT для таблиці `trips`
 --
 ALTER TABLE `trips`
   MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT для таблицы `users`
+-- AUTO_INCREMENT для таблиці `users`
 --
 ALTER TABLE `users`
   MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
--- Ограничения внешнего ключа сохраненных таблиц
+-- Обмеження зовнішнього ключа збережених таблиць
 --
 
 --
--- Ограничения внешнего ключа таблицы `gallery`
+-- Обмеження зовнішнього ключа таблиці `gallery`
 --
 ALTER TABLE `gallery`
-  ADD CONSTRAINT `gallery_ibfk_2` FOREIGN KEY (`trip_id`) REFERENCES `trips` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
-  ADD CONSTRAINT `gallery_ibfk_3` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT;
+  ADD CONSTRAINT `gallery_ibfk_1` FOREIGN KEY (`trip_id`) REFERENCES `trips` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT,
+  ADD CONSTRAINT `gallery_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL ON UPDATE RESTRICT;
 
 --
--- Ограничения внешнего ключа таблицы `inventory_trip`
+-- Обмеження зовнішнього ключа таблиці `inventory_trip`
 --
 ALTER TABLE `inventory_trip`
-  ADD CONSTRAINT `inventory_trip_ibfk_1` FOREIGN KEY (`inventory_id`) REFERENCES `inventory` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
-  ADD CONSTRAINT `inventory_trip_ibfk_2` FOREIGN KEY (`trip_id`) REFERENCES `trips` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT;
+  ADD CONSTRAINT `inventory_trip_ibfk_1` FOREIGN KEY (`inventory_id`) REFERENCES `inventory` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT,
+  ADD CONSTRAINT `inventory_trip_ibfk_2` FOREIGN KEY (`trip_id`) REFERENCES `trips` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT;
 
 --
--- Ограничения внешнего ключа таблицы `likes_photo`
+-- Обмеження зовнішнього ключа таблиці `likes_photo`
 --
 ALTER TABLE `likes_photo`
-  ADD CONSTRAINT `likes_photo_ibfk_1` FOREIGN KEY (`photo_id`) REFERENCES `gallery` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT;
+  ADD CONSTRAINT `likes_photo_ibfk_1` FOREIGN KEY (`photo_id`) REFERENCES `gallery` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT,
+  ADD CONSTRAINT `likes_photo_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT;
 
 --
--- Ограничения внешнего ключа таблицы `likes_route`
+-- Обмеження зовнішнього ключа таблиці `likes_route`
 --
 ALTER TABLE `likes_route`
-  ADD CONSTRAINT `likes_route_ibfk_1` FOREIGN KEY (`route_id`) REFERENCES `routes` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT;
+  ADD CONSTRAINT `likes_route_ibfk_1` FOREIGN KEY (`route_id`) REFERENCES `routes` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT,
+  ADD CONSTRAINT `likes_route_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT;
 
 --
--- Ограничения внешнего ключа таблицы `likes_trip`
+-- Обмеження зовнішнього ключа таблиці `likes_trip`
 --
 ALTER TABLE `likes_trip`
-  ADD CONSTRAINT `likes_trip_ibfk_1` FOREIGN KEY (`trip_id`) REFERENCES `trips` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT;
+  ADD CONSTRAINT `likes_trip_ibfk_1` FOREIGN KEY (`trip_id`) REFERENCES `trips` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT,
+  ADD CONSTRAINT `likes_trip_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT;
 
 --
--- Ограничения внешнего ключа таблицы `routes`
+-- Обмеження зовнішнього ключа таблиці `routes`
 --
 ALTER TABLE `routes`
-  ADD CONSTRAINT `routes_ibfk_1` FOREIGN KEY (`trip_id`) REFERENCES `trips` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT;
+  ADD CONSTRAINT `routes_ibfk_1` FOREIGN KEY (`trip_id`) REFERENCES `trips` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT;
 
 --
--- Ограничения внешнего ключа таблицы `trips`
+-- Обмеження зовнішнього ключа таблиці `trips`
 --
 ALTER TABLE `trips`
-  ADD CONSTRAINT `trips_ibfk_1` FOREIGN KEY (`difficulty_id`) REFERENCES `difficulties` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
-  ADD CONSTRAINT `trips_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
-  ADD CONSTRAINT `trips_ibfk_3` FOREIGN KEY (`status_id`) REFERENCES `statuses` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT;
+  ADD CONSTRAINT `trips_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT,
+  ADD CONSTRAINT `trips_ibfk_3` FOREIGN KEY (`status_id`) REFERENCES `statuses` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  ADD CONSTRAINT `trips_ibfk_4` FOREIGN KEY (`difficulty_id`) REFERENCES `difficulties` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

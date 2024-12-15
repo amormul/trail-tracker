@@ -46,6 +46,7 @@ if(conf('DEBUG') === 'true'){
 
         //    показати сторінку що щось пішло не так
         $view = new \app\core\View();
+        var_dump($e->getMessage());
         $view->render('error', ['title' => 'oops', 'message' => $e->getMessage()]);
     }
 }

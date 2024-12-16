@@ -9,12 +9,20 @@
 }
 
 .photo-section {
-    height: 215px;
+    height: 200px;
     background-color: #ffffff;
     border: 1px solid #dee2e6;
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+.photo-label {
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 150px;
 }
 
 .travel-map {

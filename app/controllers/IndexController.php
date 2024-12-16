@@ -16,4 +16,15 @@ class IndexController extends AbstractController
             'title' => 'All trips',
         ]);
     }
+
+    /**
+     * Renders add_trip.php page
+     * @return void
+     */
+    public function create(): void
+    {
+        $this->view->render('add_trip', [
+            'title' => 'Create trip',
+        ]);
+    }
 }

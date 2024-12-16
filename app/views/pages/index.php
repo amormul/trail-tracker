@@ -1,7 +1,7 @@
 <main class="container mt-5 pt-5 mb-5">
     <div class="row mb-3">
         <div class="col-7 d-flex justify-content-between align-items-center">
-            <a href="#" class="btn btn-primary">Create Trip</a>
+            <a href="<?= \app\core\Route::url('index', 'create') ?>" class="btn btn-primary">Create Trip</a>
             <h2 class="text-center">All Trips</h2>
         </div>
     </div>

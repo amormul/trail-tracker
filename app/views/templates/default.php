@@ -10,6 +10,9 @@
     <link
         href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
         rel="stylesheet" />
+    <link
+        href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css"
+        rel="stylesheet" />
     <link href="<?= DIRECTORY_SEPARATOR . 'css' . DIRECTORY_SEPARATOR . 'styles.css' ?>" rel="stylesheet" />
 </head>
 

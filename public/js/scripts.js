@@ -42,8 +42,7 @@ document.querySelectorAll(".inventory-photo").forEach((img) => {
             previewImage.innerHTML = `
         <span class="d-block text-center mb-2">
           <img src="${placeholderImage}" alt="Add" style="width: 50px" />
-        </span>
-        <span class="text-muted">Add Photo</span>`;
+        </span>`;
             fileName.textContent = "";
             clearButton.classList.add("d-none");
           });
@@ -54,13 +53,13 @@ document.querySelectorAll(".inventory-photo").forEach((img) => {
           "coverPhotoPreview",
           "coverPhotoName",
           "coverPhotoClear",
-          "add.png"
+          "/images/add.png"
         );
         setupPhotoInput(
           "travelPathPhoto",
           "travelPathPreview",
           "travelPathName",
           "travelPathClear",
-          "add.png"
+          "/images/add.png"
         );
       });

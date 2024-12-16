@@ -36,7 +36,7 @@
                                         &#x2764; 12
                                     </button>
                                 </div>
-                                <a href="#" class="btn btn-primary btn-sm">Details</a>
+                                <a href="<?= app\core\Route::url('index', 'show') ?>" class="btn btn-primary btn-sm">Details</a>
                             </div>
                         </div>
                     </div>

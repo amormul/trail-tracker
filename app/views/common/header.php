@@ -1,3 +1,6 @@
-<header>
-    <div> trail-tracker</div>
-</header>
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
+    <div class="container">
+        <a class="navbar-brand text-white" href="#">AllHikes</a>
+        <button class="btn btn-outline-light btn-sm ml-auto">Log out</button>
+    </div>
+</nav>

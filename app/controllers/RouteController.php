@@ -6,11 +6,13 @@ use app\models\Route;
 class RouteController extends \app\core\AbstractController
 {
     protected Route $route;
+    protected Session $session;
 
     public function __construct()
     {
         parent::__construct();
         $this->route = new Route();
+        $this->session = new Session();
     }
 
     /**
@@ -26,8 +28,7 @@ class RouteController extends \app\core\AbstractController
         ];
         $errors = \app\core\RouteValidators::validateRoute($data);
         if (!empty($errors)) {
-            $session = new Session();
-            $session->errors = $errors;
+            $this->session->errors = $errors;
             \app\core\Route::redirect('/index/add');
         }else{
             try {
@@ -43,6 +44,7 @@ class RouteController extends \app\core\AbstractController
                 //    показати сторінку що щось пішло не так
                 $this->view->render('error', ['title' => 'oops', 'message' => $e->getMessage()]);
             }
+            $this->session->trip_id = $data['trip_id'];
             \app\core\Route::redirect('/index/show');
         }
     }
@@ -60,8 +62,7 @@ class RouteController extends \app\core\AbstractController
         ];
         $errors = \app\core\RouteValidators::validateRoute($data);
         if (!empty($errors)) {
-            $session = new Session();
-            $session->errors = $errors;
+            $this->session->errors = $errors;
             \app\core\Route::redirect('/index/edit');
         }else{
             try {
@@ -78,19 +79,9 @@ class RouteController extends \app\core\AbstractController
                 //    показати сторінку що щось пішло не так
                 $this->view->render('error', ['title' => 'oops', 'message' => $e->getMessage()]);
             }
+            $this->session->trip_id = $data['trip_id'];
             \app\core\Route::redirect('/index/show');
         }
-    }
-
-    /**
-     * deletes route from DB;
-     * @return void
-     */
-    public function delete(): void
-    {
-        $trip_id = (int)filter_input(INPUT_POST, 'trip_id');
-        $this->route->delete($trip_id);
-
     }
 
     /**
@@ -99,15 +90,17 @@ class RouteController extends \app\core\AbstractController
      */
     public function addLike(): void
     {
-        $route_id = (int)filter_input(INPUT_POST, 'route_id');
+        $trip_id = (int)filter_input(INPUT_POST, 'trip_id');
         $user_id = $this->getCurrentUserId();
-        $res = $this->route->addLike($route_id, $user_id);
+        $route = $this->route->getByTripId($trip_id);
+        $res = $this->route->addLike($route['id'], $user_id);
         if (!$res) {
             $error = 'error adding route like in database';
             \app\core\Logs::write($error);
             //    показати сторінку що щось пішло не так
             $this->view->render('error', ['title' => 'oops', 'message' => $error]);
         }
+        $this->session->trip_id = $trip_id;
         \app\core\Route::redirect('/index/show');
     }
 
@@ -117,15 +110,17 @@ class RouteController extends \app\core\AbstractController
      */
     public function deleteLike(): void
     {
-        $route_id = (int)filter_input(INPUT_POST, 'route_id');
+        $trip_id = (int)filter_input(INPUT_POST, 'trip_id');
         $user_id = $this->getCurrentUserId();
-        $res = $this->route->deleteLike($route_id, $user_id);
+        $route = $this->route->getByTripId($trip_id);
+        $res = $this->route->deleteLike($route['id'], $user_id);
         if (!$res) {
             $error = 'error deleting route like in database';
             \app\core\Logs::write($error);
             //    показати сторінку що щось пішло не так
             $this->view->render('error', ['title' => 'oops', 'message' => $error]);
         }
+        $this->session->trip_id = $trip_id;
         \app\core\Route::redirect('/index/show');
     }
 }

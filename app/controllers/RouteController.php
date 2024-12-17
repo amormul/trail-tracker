@@ -27,6 +27,7 @@ class RouteController extends \app\core\AbstractController
             'photo' => filter_input(INPUT_POST, 'photo'),
         ];
         $errors = \app\core\RouteValidators::validateRoute($data);
+        $this->session->trip_id = $data['trip_id'];
         if (!empty($errors)) {
             $this->session->errors = $errors;
             \app\core\Route::redirect('/index/add');
@@ -44,7 +45,6 @@ class RouteController extends \app\core\AbstractController
                 //    показати сторінку що щось пішло не так
                 $this->view->render('error', ['title' => 'oops', 'message' => $e->getMessage()]);
             }
-            $this->session->trip_id = $data['trip_id'];
             \app\core\Route::redirect('/index/show');
         }
     }
@@ -61,6 +61,7 @@ class RouteController extends \app\core\AbstractController
             'photo' => filter_input(INPUT_POST, 'photo'),
         ];
         $errors = \app\core\RouteValidators::validateRoute($data);
+        $this->session->trip_id = $data['trip_id'];
         if (!empty($errors)) {
             $this->session->errors = $errors;
             \app\core\Route::redirect('/index/edit');
@@ -79,7 +80,6 @@ class RouteController extends \app\core\AbstractController
                 //    показати сторінку що щось пішло не так
                 $this->view->render('error', ['title' => 'oops', 'message' => $e->getMessage()]);
             }
-            $this->session->trip_id = $data['trip_id'];
             \app\core\Route::redirect('/index/show');
         }
     }
@@ -94,13 +94,14 @@ class RouteController extends \app\core\AbstractController
         $user_id = $this->getCurrentUserId();
         $route = $this->route->getByTripId($trip_id);
         $res = $this->route->addLike($route['id'], $user_id);
+        $this->session->trip_id = $trip_id;
         if (!$res) {
             $error = 'error adding route like in database';
             \app\core\Logs::write($error);
             //    показати сторінку що щось пішло не так
             $this->view->render('error', ['title' => 'oops', 'message' => $error]);
         }
-        $this->session->trip_id = $trip_id;
+
         \app\core\Route::redirect('/index/show');
     }
 
@@ -114,13 +115,14 @@ class RouteController extends \app\core\AbstractController
         $user_id = $this->getCurrentUserId();
         $route = $this->route->getByTripId($trip_id);
         $res = $this->route->deleteLike($route['id'], $user_id);
+        $this->session->trip_id = $trip_id;
         if (!$res) {
             $error = 'error deleting route like in database';
             \app\core\Logs::write($error);
             //    показати сторінку що щось пішло не так
             $this->view->render('error', ['title' => 'oops', 'message' => $error]);
         }
-        $this->session->trip_id = $trip_id;
+
         \app\core\Route::redirect('/index/show');
     }
 }

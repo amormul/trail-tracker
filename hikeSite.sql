@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Хост: 127.0.0.1:3306
--- Час створення: Гру 15 2024 р., 13:42
+-- Час створення: Гру 17 2024 р., 16:08
 -- Версія сервера: 8.0.30
 -- Версія PHP: 8.1.9
 
@@ -147,7 +147,8 @@ CREATE TABLE `trips` (
   `start_date` timestamp NOT NULL,
   `end_date` timestamp NOT NULL,
   `status_id` int UNSIGNED NOT NULL,
-  `description` text COLLATE utf8mb4_general_ci NOT NULL
+  `description` text COLLATE utf8mb4_general_ci NOT NULL,
+  `photo` varchar(255) COLLATE utf8mb4_general_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------

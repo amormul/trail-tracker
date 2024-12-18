@@ -12,10 +12,7 @@ class IndexController extends AbstractController
     public function index(): void
     {
         $this->view->render('index', [
-            'title' => 'Sign In',
+            'title' => 'All trips',
         ]);
     }
-
-
-
 }

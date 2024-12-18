@@ -6,7 +6,7 @@
                 <h2 class="text-center">Create Trip</h2>
             </div>
         </div>
-        <form action="#" method="post" enctype="multipart/form-data">
+        <form action="<?= app\core\Route::url('route','store') ?>" method="post" enctype="multipart/form-data">
             <div class="row">
                 <!-- Left Column for Photos -->
                 <div class="col-md-4">

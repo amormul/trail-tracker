@@ -41,7 +41,7 @@ class IndexController extends AbstractController
     {
         $difficulties = $this->model->getAllDifficulties();
         $statuses = $this->model->getAllStatuses();
-        $inventories = (new Inventory())->getAll();
+        $inventories = (new Inventory())->getAllInventory();
         $this->view->render('add_trip', [
             'title' => 'Create trip',
             'difficulties' => $difficulties,

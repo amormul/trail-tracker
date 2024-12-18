@@ -41,6 +41,7 @@ if(conf('DEBUG') === 'true'){
         new \app\core\Route();
     } catch (Exception $e) {
         //    запис в log про конкретну помилку
+        var_dump($e->getMessage());
         \app\core\Logs::write($e->getMessage() );
         //    показати сторінку що щось пішло не так
         $view = new \app\core\View();

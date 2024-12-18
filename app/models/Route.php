@@ -25,14 +25,13 @@ class Route extends \app\core\AbstractDB
     /**
      * returns route parameters by trip identifier
      * @param int $id
-     * @return array|null
+     * @return array|null|bool
      */
-    public function getByTripId(int $id) : array | null
+    public function getByTripId(int $id) : array | null | bool
     {
         $query = "SELECT * FROM routes WHERE trip_id = ?;";
-        $data = null;
         /* создание подготавливаемого запроса */
-        if($stmt = mysqli_prepare($this->db,$query)) {
+        if($stmt = $this->db->prepare($query)) {
             /* связывание параметров с метками */
             $stmt->bind_param("i", $id);
             /* выполнение запроса */
@@ -40,19 +39,23 @@ class Route extends \app\core\AbstractDB
             /* Связываем переменные результата */
             $stmt->bind_result($data);
             $stmt->fetch();
-            $stmt->close();
+            return $data;
         }
-        return $data;
+        return null;
     }
 
     /**
      * copying a file Photo from temp folder to folder images
-     * @param array $photo
+     * @param array|null $photo
      * @return void
      * @throws \Exception
      */
-    function savePhoto(array $photo): void
+    function savePhoto(array $photo=null): void
     {
+        $this->file = '';
+        if(empty($photo)){
+            return;
+        }
         if (!empty($photo['name'])) {
             $extension = pathinfo($photo['name'], PATHINFO_EXTENSION);
             $uniqueName = 'route' . uniqid() . '.' . $extension;
@@ -61,8 +64,6 @@ class Route extends \app\core\AbstractDB
                 $this->file = '';
                 throw new \Exception('Photo was not uploaded: ' . $this->file);
             }
-        }else{
-            $this->file = '';
         }
     }
 
@@ -94,20 +95,17 @@ class Route extends \app\core\AbstractDB
     public function create(array $route) : bool
     {
         $this->savePhoto($route['photo']);
-        $query = "INSERT INTO messages(trip_id, description,photo) VALUES ( ?,?,?);" ;
-        $res = false;
+        $route['trip_id'] = 1;
+        $query = "INSERT INTO routes (trip_id, description,photo) VALUES ( ?,?,?);" ;
+        var_dump($query);
         /* создание подготавливаемого запроса */
-        if($stmt = mysqli_prepare($this->db,$query)) {
+        if($stmt = $this->db->prepare($query)) {
             /* связывание параметров с метками */
             $stmt->bind_param("iss", $route['trip_id'], $route['description'], $this->file);
             /* выполнение запроса */
-            $stmt->execute();
-            if ($stmt->errno === 0) {
-                $res = true;
-            }
-            $stmt->close();
+            return $stmt->execute();
         }
-        return $res;
+        return false;
     }
 
     /**
@@ -122,17 +120,13 @@ class Route extends \app\core\AbstractDB
         $this->savePhoto($route['photo']);
         $query = "UPDATE routes SET description=?,photo=? WHERE trip_id = ?;" ;
         /* создание подготавливаемого запроса */
-        $stmt = mysqli_prepare($this->db,$query);
-        /* связывание параметров с метками */
-        $stmt->bind_param("ssi", $route['description'], $this->file,$route['trip_id']);
-        /* выполнение запроса */
-        $stmt->execute();
-        $res = true;
-        if ($stmt->errno != 0) {
-            $res = false;
+        if($stmt = $this->db->prepare($query)) {
+            /* связывание параметров с метками */
+            $stmt->bind_param("ssi", $route['description'], $this->file, $route['trip_id']);
+            /* выполнение запроса */
+            return $stmt->execute();
         }
-        $stmt->close();
-        return $res;
+        return false;
     }
 
     /**
@@ -144,17 +138,13 @@ class Route extends \app\core\AbstractDB
     {
         $query = "DELETE FROM routes WHERE trip_id = ?;";
           /* создание подготавливаемого запроса */
-        $stmt = mysqli_prepare($this->db,$query);
-        /* связывание параметров с метками */
-        $stmt->bind_param("i", $trip_id);
-        /* выполнение запроса */
-        $stmt->execute();
-        $res = true;
-        if ($stmt->errno != 0) {
-            $res = false;
+        if($stmt = $this->db->prepare($query)) {
+            /* связывание параметров с метками */
+            $stmt->bind_param("i", $trip_id);
+            /* выполнение запроса */
+            return $stmt->execute();
         }
-        $stmt->close();
-        return $res;
+        return false;
     }
     /**
      * adds a like to the route from the user
@@ -162,21 +152,43 @@ class Route extends \app\core\AbstractDB
      * @param int $user_id
      * @return bool
      */
+
+    public function like(int $route_id, int $user_id) : bool
+    {
+        $query = "SELECT * FROM likes_route WHERE route_id = ? AND user_id = ?;";
+        /* создание подготавливаемого запроса */
+        if($stmt = $this->db->prepare($query)) {
+            /* связывание параметров с метками */
+            $stmt->bind_param("ii", $route_id, $user_id);
+            /* выполнение запроса */
+            $stmt->execute();
+            /* Связываем переменные результата */
+            $stmt->bind_result($data);
+            if ($stmt->fetch()) {
+                var_dump($data);
+                if(empty($data)){
+                    return $this->addLike($route_id,$user_id);
+                }else{
+                    return $this->deleteLike($route_id,$user_id);
+                }
+            }
+        }
+        return false;
+    }
+
+
+
     public function addLike(int $route_id, int $user_id) : bool
     {
         $query = "INSERT INTO likes_route (route_id, user_id) VALUES (?, ?);";
         /* создание подготавливаемого запроса */
-        $stmt = mysqli_prepare($this->db,$query);
-        /* связывание параметров с метками */
-        $stmt->bind_param("ii", $route_id,$user_id);
-        /* выполнение запроса */
-        $stmt->execute();
-        $res = true;
-        if ($stmt->errno != 0) {
-            $res = false;
+        if($stmt = $this->db->prepare($query)) {
+            /* связывание параметров с метками */
+            $stmt->bind_param("ii", $route_id, $user_id);
+            /* выполнение запроса */
+            return $stmt->execute();
         }
-        $stmt->close();
-        return $res;
+        return false;
     }
 
     /**
@@ -189,7 +201,7 @@ class Route extends \app\core\AbstractDB
         $query = "SELECT COUNT(id) as count FROM likes_route WHERE route_id = ?";
         $count = 0;
         /* создание подготавливаемого запроса */
-        if($stmt = mysqli_prepare($this->db,$query)) {
+        if($stmt = $this->db->prepare($query)) {
             /* связывание параметров с метками */
             $stmt->bind_param("i", $id);
             /* выполнение запроса */
@@ -212,16 +224,12 @@ class Route extends \app\core\AbstractDB
     {
         $query = "DELETE FROM likes_route WHERE route_id = ? AND user_id = ?;";
         /* создание подготавливаемого запроса */
-        $stmt = mysqli_prepare($this->db,$query);
-        /* связывание параметров с метками */
-        $stmt->bind_param("ii", $route_id,$user_id);
-        /* выполнение запроса */
-        $stmt->execute();
-        $res = true;
-        if ($stmt->errno != 0) {
-            $res = false;
+        if($stmt = $this->db->prepare($query)) {
+            /* связывание параметров с метками */
+            $stmt->bind_param("ii", $route_id, $user_id);
+            /* выполнение запроса */
+            return $stmt->execute();
         }
-        $stmt->close();
-        return $res;
+        return false;
     }
 }

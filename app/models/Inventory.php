@@ -23,11 +23,10 @@ class Inventory extends \app\core\AbstractDB
         $stmt->bind_param("i", $id);
         return $stmt->execute();
     }
-    //Get all inventory by id
-    public function getInventory(int $id): array
+    //Get all inventory
+    public function getAllInventory(): ?array
     {
-        $stmt = $this->db->prepare("SELECT * FROM inventory WHERE id = ?");
-        $stmt->bind_param("i", $id);
-        $stmt->execute();
+        $result = $this->db->query("SELECT * FROM inventory");
+        return $result->fetch_all(MYSQLI_ASSOC)?: null;
     }
 }

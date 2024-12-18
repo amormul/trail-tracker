@@ -5,12 +5,15 @@
                 <!-- Left Photo Section -->
                 <div class="col-md-3">
                     <div class="photo-section">
-                        <span class="text-secondary font-weight-bold">PHOTO</span>
+                        <img src="<?= $trip['photo'] ?>" alt="<?= $trip['name'] ?>" class="img-fluid rounded">
                     </div>
                     <!-- Likes -->
                     <div class="d-flex justify-content-between mt-2">
-                        <button class="btn btn-outline-danger btn-sm">&#x2764;</button>
-                        <span>12 Likes</span>
+                        <form action="<?= app\core\Route::url('index', 'like') ?>" method="post">
+                            <input type="hidden" name="trip_id" value="<?= $trip['id'] ?>">
+                            <input type="submit" class="btn btn-outline-danger btn-sm" value="&#x2764;">
+                        </form>
+                        <span><?= $trip['likes'] ?> Likes</span>
                     </div>
                 </div>
 
@@ -27,20 +30,19 @@
 
                     <!-- Hike Properties -->
                     <div>
-                        <h1>Beautiful Mountain Hike</h1>
+                        <h1><?= $trip['name'] ?></h1>
                         <p>
-                            This is a scenic hike through mountains and valleys, offering
-                            stunning views.
+                            <?= $trip['description'] ?>
                         </p>
                         <!-- Two Columns for Properties -->
                         <div class="row">
-                            <div class="col-6">
+                            <div class="col-7">
                                 <p><strong>Author:</strong> John Doe</p>
-                                <p><strong>Hike period:</strong> 2024-05-01 - 2024-05-10</p>
+                                <p><strong>Hike period:</strong> <?= $trip['start_date'] ?> - <?= $trip['end_date'] ?></p>
                             </div>
-                            <div class="col-6">
-                                <p><strong>Status:</strong> Planned</p>
-                                <p><strong>Difficulty:</strong> Moderate</p>
+                            <div class="col-5">
+                                <p><strong>Status:</strong> <?= $trip['status'] ?></p>
+                                <p><strong>Difficulty:</strong> <?= $trip['difficulty'] ?></p>
                             </div>
                         </div>
                         <p><strong>Inventory:</strong></p>

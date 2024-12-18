@@ -6,7 +6,7 @@
                 <h2 class="text-center">Create Trip</h2>
             </div>
         </div>
-        <form action="<?= app\core\Route::url('route','store') ?>" method="post" enctype="multipart/form-data">
+        <form action="<?= \app\core\Route::url('index', 'store') ?>" method="post" enctype="multipart/form-data">
             <div class="row">
                 <!-- Left Column for Photos -->
                 <div class="col-md-4">
@@ -77,11 +77,11 @@
                     <div class="form-row mb-3">
                         <div class="col-md-6">
                             <label for="difficulty">Difficulty:</label>
-                            <select class="form-control" id="difficulty" name="difficulty">
+                            <select class="form-control" id="difficulty" name="difficulty_id">
                                 <option disabled selected>Choose difficulty</option>
-                                <option>Easy</option>
-                                <option>Moderate</option>
-                                <option>Hard</option>
+                                <?php foreach ($difficulties as $difficulty): ?>
+                                    <option value="<?= $difficulty['id'] ?>"><?= $difficulty['name'] ?></option>
+                                <?php endforeach; ?>
                             </select>
                         </div>
                         <div class="col-md-6">
@@ -100,11 +100,11 @@
                     <div class="form-row mb-3">
                         <div class="col-md-6">
                             <label for="status">Status:</label>
-                            <select class="form-control" id="status" name="status_id">
+                            <select class="form-control" id="status_id" name="status_id">
                                 <option disabled selected>Choose status</option>
-                                <option value="1">Planned</option>
-                                <option value="2">In Progress</option>
-                                <option value="3">Completed</option>
+                                <?php foreach ($statuses as $status): ?>
+                                    <option value="<?= $status['id'] ?>"><?= $status['name'] ?></option>
+                                <?php endforeach; ?>
                             </select>
                         </div>
                         <div class="col-md-6">
@@ -123,7 +123,7 @@
                         <div class="col-md-6">
                             <label for="startDate">Choose start date:</label>
                             <input
-                                type="date"
+                                type="datetime-local"
                                 class="form-control"
                                 id="startDate"
                                 name="start_date"
@@ -132,7 +132,7 @@
                         <div class="col-md-6">
                             <label for="endDate">Choose end date:</label>
                             <input
-                                type="date"
+                                type="datetime-local"
                                 class="form-control"
                                 id="endDate"
                                 name="end_date"
@@ -160,9 +160,9 @@
                         id="inventory"
                         name="inventory[]"
                         multiple="multiple">
-                        <option value="1">Tent</option>
-                        <option value="2">Backpack</option>
-                        <option value="3">Map</option>
+                        <?php foreach ($inventories as $inventory): ?>
+                            <option value="<?= $inventory['id'] ?>"><?= $inventory['name'] ?></option>
+                        <?php endforeach; ?>
                     </select>
                 </div>
                 <div class="col-md-3 d-flex align-items-end">

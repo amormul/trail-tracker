@@ -6,114 +6,48 @@
         </div>
     </div>
     <div class="row">
-        <!-- Hike Card 1 -->
-        <div class="col-md-12 mb-4">
-            <div class="card shadow">
-                <div class="row no-gutters">
-                    <div
-                        class="col-md-3 d-flex align-items-center justify-content-center p-3">
-                        <span class="text-secondary font-weight-bold">PHOTO</span>
-                    </div>
-                    <div class="col-md-9">
-                        <div class="card-body">
-                            <h5 class="card-title">Mountain Adventure</h5>
-                            <p class="card-text">
-                                A breathtaking hike through the hills.
-                            </p>
-                            <div class="row">
-                                <div class="col-6">
-                                    <p><strong>Author:</strong> John Doe</p>
-                                    <p><strong>Start Date:</strong> 2024-05-01</p>
+        <!-- Hike Cards -->
+        <?php foreach ($trips as $trip): ?>
+            <div class="col-md-12 mb-4">
+                <div class="card shadow">
+                    <div class="row no-gutters">
+                        <div
+                            class="col-md-3 d-flex align-items-center justify-content-center p-3">
+                            <img src="<?= $trip['photo'] ?>" alt="<?= $trip['name'] ?>" class="img-fluid rounded">
+                        </div>
+                        <div class="col-md-9">
+                            <div class="card-body">
+                                <h5 class="card-title"><?= $trip['name'] ?></h5>
+                                <p class="card-text">
+                                    <?= $trip['description'] ?>
+                                </p>
+                                <div class="row">
+                                    <div class="col-6">
+                                        <p><strong>Author:</strong> John Doe</p>
+                                        <p><strong>Start Date:</strong> <?= $trip['start_date'] ?></p>
+                                    </div>
+                                    <div class="col-6">
+                                        <p><strong>Status:</strong> <?= $trip['status'] ?></p>
+                                        <p><strong>Difficulty:</strong> <?= $trip['difficulty'] ?></p>
+                                    </div>
                                 </div>
-                                <div class="col-6">
-                                    <p><strong>Status:</strong> Completed</p>
-                                    <p><strong>Difficulty:</strong> Moderate</p>
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <form action="<?= app\core\Route::url('index', 'like') ?>" method="post">
+                                            <input type="hidden" name="trip_id" value="<?= $trip['id'] ?>">
+                                            <input type="submit" class="btn btn-outline-danger btn-sm" value="&#x2764; <?= $trip['likes'] ?>">
+                                        </form>
+                                    </div>
+                                    <form action="<?= app\core\Route::url('index', 'show') ?>" method="post">
+                                        <input type="hidden" name="trip_id" value="<?= $trip['id'] ?>">
+                                        <input type="submit" class="btn btn-primary btn-sm" value="Details">
+                                    </form>
                                 </div>
-                            </div>
-                            <div class="d-flex justify-content-between">
-                                <div>
-                                    <button class="btn btn-outline-danger btn-sm">
-                                        &#x2764; 12
-                                    </button>
-                                </div>
-                                <a href="<?= app\core\Route::url('index', 'show') ?>" class="btn btn-primary btn-sm">Details</a>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <!-- Hike Card 2 -->
-        <div class="col-md-12 mb-4">
-            <div class="card shadow">
-                <div class="row no-gutters">
-                    <div
-                        class="col-md-3 d-flex align-items-center justify-content-center p-3">
-                        <span class="text-secondary font-weight-bold">PHOTO</span>
-                    </div>
-                    <div class="col-md-9">
-                        <div class="card-body">
-                            <h5 class="card-title">Forest Trail</h5>
-                            <p class="card-text">
-                                Explore the wonders of the deep forest.
-                            </p>
-                            <div class="row">
-                                <div class="col-6">
-                                    <p><strong>Author:</strong> Jane Smith</p>
-                                    <p><strong>Start Date:</strong> 2024-06-10</p>
-                                </div>
-                                <div class="col-6">
-                                    <p><strong>Status:</strong> Planned</p>
-                                    <p><strong>Difficulty:</strong> Easy</p>
-                                </div>
-                            </div>
-                            <div class="d-flex justify-content-between">
-                                <div>
-                                    <button class="btn btn-outline-danger btn-sm">
-                                        &#x2764; 12
-                                    </button>
-                                </div>
-                                <a href="#" class="btn btn-primary btn-sm">Details</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- Hike Card 3 -->
-        <div class="col-md-12 mb-5">
-            <div class="card shadow">
-                <div class="row no-gutters">
-                    <div
-                        class="col-md-3 d-flex align-items-center justify-content-center p-3">
-                        <span class="text-secondary font-weight-bold">PHOTO</span>
-                    </div>
-                    <div class="col-md-9">
-                        <div class="card-body">
-                            <h5 class="card-title">River Walk</h5>
-                            <p class="card-text">A serene walk along the riverbank.</p>
-                            <div class="row">
-                                <div class="col-6">
-                                    <p><strong>Author:</strong> Alex Johnson</p>
-                                    <p><strong>Start Date:</strong> 2024-07-15</p>
-                                </div>
-                                <div class="col-6">
-                                    <p><strong>Status:</strong> In Progress</p>
-                                    <p><strong>Difficulty:</strong> Hard</p>
-                                </div>
-                            </div>
-                            <div class="d-flex justify-content-between">
-                                <div>
-                                    <button class="btn btn-outline-danger btn-sm">
-                                        &#x2764; 12
-                                    </button>
-                                </div>
-                                <a href="#" class="btn btn-primary btn-sm">Details</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <?php endforeach; ?>
     </div>
 </main>

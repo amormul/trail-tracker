@@ -1,5 +1,5 @@
 <?php
-namespace app\models;
+
 class User extends \app\core\AbstractDB
 {
     public function getByLogin(string $login): array
@@ -7,7 +7,7 @@ class User extends \app\core\AbstractDB
         $query = "SELECT * FROM users WHERE login = ?;";
         $data = null;
         /* создание подготавливаемого запроса */
-        if($stmt = mysqli_prepare($this->db,$query)) {
+        if ($stmt = mysqli_prepare($this->db, $query)) {
             /* связывание параметров с метками */
             $stmt->bind_param("s", $login);
             /* выполнение запроса */

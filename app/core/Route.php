@@ -22,6 +22,7 @@ class Route
     {
         $controllerName = $this->getUrlComponent(0);
         $action = $this->getUrlComponent(1);
+        $param = $this->getUrlComponent(2);
         $controllerClass = self::CONTROLLER_NAMESPACE . ucfirst($controllerName) . 'Controller';
         if(!class_exists($controllerClass)) {
             self::notFound();
@@ -30,7 +31,11 @@ class Route
         if(!method_exists($controller, $action)) {
             self::notFound();
         }
-        $controller->$action();
+        if ($param !== '') {
+            $controller->$action($param);
+        } else {
+            $controller->$action();
+        }
     }
 
     /**
@@ -71,15 +76,20 @@ class Route
         http_response_code(404);
         exit();
     }
+
     /**
      * Create url for controller and action
      * @param string $controller
      * @param string $action
      * @return string
      */
-    public static function url(string $controller = self::DEFAULT_NAME, string $action = self::DEFAULT_NAME) : string
+    public static function url(string $controller = self::DEFAULT_NAME, string $action = self::DEFAULT_NAME, array $params = []) : string
     {
-        return '/' . $controller . '/' . $action;
+        $url = '/' . $controller . '/' . $action;
+        if (!empty($params)) {
+            $url .= '/' . implode('/', $params);
+        }
+        return $url;
     }
     /**
      * redirect to specify url

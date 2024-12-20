@@ -4,13 +4,13 @@ namespace app\core;
 
 class RouteValidators
 {
-    const int PHOTO_MAX_SIZE = 2 * 1024 * 1024; //2Mb
-    const array PHOTO_AVAILABLE_TYPES = [
+    const  PHOTO_MAX_SIZE = 5242880;//5 * 1024 * 1024; //5Mb
+    const PHOTO_AVAILABLE_TYPES = [
         'image/jpeg',
         'image/png',
         'image/bmp',
     ];
-    const array UPLOAD_ERROR_MESSAGES = [
+    const UPLOAD_ERROR_MESSAGES = [
         0 => 'There is no error, the file uploaded with success',
         1 => 'The uploaded file exceeds the upload_max_filesize directive in php.ini',
         2 => 'The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form',
@@ -21,7 +21,7 @@ class RouteValidators
         8 => 'A PHP extension stopped the file upload.',
     ];
 
-    const array ERROR_MESSAGES = [
+    const  ERROR_MESSAGES = [
         0 => 'Please choose at least one file for upload',
         1 => 'No more than 5 files allowed to upload',
         2 => ' has incorrect format. Allowed formats: jpg, jpeg, png, bmp',
@@ -67,13 +67,17 @@ class RouteValidators
         }
         return null;
     }
+
     /**
      * check all photos values
-     * @param array $photo
-     * @return string | null
+     * @param array|null $photo
+     * @return string|null
      */
-    protected static function validatePhoto(array $photo): string | null
+    protected static function validatePhoto(array $photo=null): string | null
     {
+        if(empty($photo)){
+            return null;
+        }
         $res = self::isNoFileError($photo);
         if(!empty($res)){
             return  $res;

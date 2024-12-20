@@ -2,51 +2,30 @@
     <div class="row">
         <div class="col-12 bg-light shadow rounded py-4 px-4">
             <div class="d-flex justify-content-between mb-3">
-            <h1>Inventory</h1>
-            <button class="btn btn-success btn-sm">Add Item</button>
+                <h1>Inventory</h1>
+                <a href="<?= \app\core\Route::url('inventory', 'create')?>" class="btn btn-success btn-sm">Add Item</a>
             </div>
 
             <!-- Inventory Cards -->
             <div class="row">
-                <div class="col-md-4 mb-4">
-                    <div class="card h-100">
-                        <img src="https://via.placeholder.com/300x200" class="card-img-top" alt="Backpack">
-                        <div class="card-body d-flex flex-column">
-                            <h5 class="card-title">Tent</h5>
-                            <p class="card-text">A lightweight 2-person tent, perfect for hiking trips.</p>
-                            <div class="mt-auto d-flex justify-content-end">
-                                <button class="btn btn-primary btn-sm mr-2">Update</button>
-                                <button class="btn btn-danger btn-sm">Delete</button>
+                <?php foreach ($inventories as $inventory): ?>
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100">
+                            <img src="<?= $inventory['photo'] ? $inventory['photo'] : 'https://via.placeholder.com/300x200' ?>" class="card-img-top" alt="<?= $inventory['name'] ?>">
+                            <div class="card-body d-flex flex-column">
+                                <h5 class="card-title"><?= $inventory['name'] ?></h5>
+                                <p class="card-text"><?= $inventory['description'] ?></p>
+                                <div class="mt-auto d-flex justify-content-end">
+                                    <a href="/inventory/edit/<?= $inventory['id'] ?>" class="btn btn-primary btn-sm mr-2">Update</a>
+                                    <form action="/inventory/delete" method="POST" style="display:inline;">
+                                        <input type="hidden" name="id" value="<?= $inventory['id'] ?>">
+                                        <button type="submit" class="btn btn-danger btn-sm" >Delete</button>
+                                    </form>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="col-md-4 mb-4">
-                    <div class="card h-100">
-                        <img src="https://via.placeholder.com/300x200" class="card-img-top" alt="Backpack">
-                    <div class="card-body d-flex flex-column">
-                        <h5 class="card-title">Sleeping Bag</h5>
-                    <p class="card-text">Warm and comfortable sleeping bag for all seasons.</p>
-                        <div class="mt-auto d-flex justify-content-end">
-                            <button class="btn btn-primary btn-sm mr-2">Update</button>
-                            <button class="btn btn-danger btn-sm">Delete</button>
-                        </div>
-                    </div>
-                    </div>
-                </div>
-                <div class="col-md-4 mb-4">
-                    <div class="card h-100">
-                    <img src="https://via.placeholder.com/300x200" class="card-img-top" alt="Backpack">
-                        <div class="card-body d-flex flex-column">
-                                <h5 class="card-title">Backpack</h5>
-                                <p class="card-text">Durable 40L backpack with multiple compartments.</p>
-                            <div class="mt-auto d-flex justify-content-end">
-                                <button class="btn btn-primary btn-sm mr-2">Update</button>
-                                <button class="btn btn-danger btn-sm">Delete</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <?php endforeach; ?>
             </div>
         </div>
     </div>

@@ -1,5 +1,7 @@
 <?php
 
+namespace app\controllers;
+
 use app\core\Session;
 use app\models\Route;
 
@@ -16,16 +18,41 @@ class RouteController extends \app\core\AbstractController
     }
 
     /**
-     * creates route  in DB
+     * reading the input data of the route
+     * @return array
+     */
+    public function inputData(): array
+    {
+        return [
+            'trip_id' => (int)filter_input(INPUT_POST, 'trip_id',FILTER_VALIDATE_INT) ?:
+                (int)$this->session->old['trip_id'],
+            'description' => filter_input(INPUT_POST, 'route_description') ?:
+                $this->session->old['route_description'],
+            'photo' => $_FILES['route_photo'],
+        ];
+    }
+
+    /**
+     * log entry about a specific error and show the page error.php
+     * @param string $message
      * @return void
      */
-  public function store(): void
+    public function outputException(string $message) : void
     {
-        $data = [
-            'trip_id' => (int)filter_input(INPUT_POST, 'trip_id'),
-            'description' => filter_input(INPUT_POST, 'description'),
-            'photo' => filter_input(INPUT_POST, 'photo'),
-        ];
+        //    запис в log про конкретну помилку
+        \app\core\Logs::write($message);
+        //    показати сторінку що щось пішло не так
+        $this->view->render('error', ['title' => 'oops', 'message' => $message]);
+    }
+
+    /**
+     * creates route  in DB
+     * @return void
+     * @throws \Exception
+     */
+    public function store(): void
+    {
+        $data = $this->inputData();
         $errors = \app\core\RouteValidators::validateRoute($data);
         $this->session->trip_id = $data['trip_id'];
         if (!empty($errors)) {
@@ -34,16 +61,8 @@ class RouteController extends \app\core\AbstractController
         }else{
             try {
                 $res = $this->route->create($data);
-                if (!$res) {
-                    $error = 'error adding route to database';
-                    \app\core\Logs::write($error);
-                    //    показати сторінку що щось пішло не так
-                    $this->view->render('error', ['title' => 'oops', 'message' => $error]);
-                }
             } catch (Exception $e) {
-                \app\core\Logs::write($e->getMessage());
-                //    показати сторінку що щось пішло не так
-                $this->view->render('error', ['title' => 'oops', 'message' => $e->getMessage()]);
+                $this->outputException($e->getMessage());
             }
             \app\core\Route::redirect('/index/show');
         }
@@ -52,14 +71,11 @@ class RouteController extends \app\core\AbstractController
     /**
      * updates  route in DB;
      * @return void
+     * @throws \Exception
      */
     public function update(): void
     {
-        $data = [
-            'trip_id' => (int)filter_input(INPUT_POST, 'trip_id'),
-            'description' => filter_input(INPUT_POST, 'description'),
-            'photo' => filter_input(INPUT_POST, 'photo'),
-        ];
+        $data = $this->inputData();
         $errors = \app\core\RouteValidators::validateRoute($data);
         $this->session->trip_id = $data['trip_id'];
         if (!empty($errors)) {
@@ -68,61 +84,29 @@ class RouteController extends \app\core\AbstractController
         }else{
             try {
                 $res = $this->route->update($data);
-                if (!$res) {
-                    $error = 'error updating route in database';
-                    \app\core\Logs::write($error);
-                    //    показати сторінку що щось пішло не так
-                    $this->view->render('error', ['title' => 'oops', 'message' => $error]);
-                }
             } catch (Exception $e) {
-                //    запис в log про конкретну помилку
-                \app\core\Logs::write($e->getMessage());
-                //    показати сторінку що щось пішло не так
-                $this->view->render('error', ['title' => 'oops', 'message' => $e->getMessage()]);
+                $this->outputException($e->getMessage());
             }
             \app\core\Route::redirect('/index/show');
         }
     }
 
     /**
-     * creates like record in DB
+     * creates or deletes like record in DB
      * @return void
      */
-    public function addLike(): void
+    public function like(): void
     {
-        $trip_id = (int)filter_input(INPUT_POST, 'trip_id');
+        $trip_id = (int)filter_input(INPUT_POST, 'trip_id')?:
+            (int)$this->session->old['trip_id'];
         $user_id = $this->getCurrentUserId();
         $route = $this->route->getByTripId($trip_id);
-        $res = $this->route->addLike($route['id'], $user_id);
         $this->session->trip_id = $trip_id;
-        if (!$res) {
-            $error = 'error adding route like in database';
-            \app\core\Logs::write($error);
-            //    показати сторінку що щось пішло не так
-            $this->view->render('error', ['title' => 'oops', 'message' => $error]);
+        try {
+            $res = $this->route->like($route['id'], $user_id);
+        } catch (\Exception $e){
+            $this->outputException($e->getMessage());
         }
-
-        \app\core\Route::redirect('/index/show');
-    }
-
-    /**
-     * deletes like record from DB;
-     * @return void
-     */
-    public function deleteLike(): void
-    {
-        $trip_id = (int)filter_input(INPUT_POST, 'trip_id');
-        $user_id = $this->getCurrentUserId();
-        $route = $this->route->getByTripId($trip_id);
-        $res = $this->route->deleteLike($route['id'], $user_id);
-        $this->session->trip_id = $trip_id;
-        if (!$res) {
-            $error = 'error deleting route like in database';
-            \app\core\Logs::write($error);
-            //    показати сторінку що щось пішло не так
-            $this->view->render('error', ['title' => 'oops', 'message' => $error]);
-        }
-
         \app\core\Route::redirect('/index/show');
     }
 }

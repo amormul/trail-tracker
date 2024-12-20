@@ -1,6 +1,7 @@
 <?php
 
-class User extends \app\core\AbstractDB
-{
+namespace app\models;
 
+class User
+{
 }

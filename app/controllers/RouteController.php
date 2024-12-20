@@ -45,6 +45,14 @@ class RouteController extends \app\core\AbstractController
         $this->view->render('error', ['title' => 'oops', 'message' => $message]);
     }
 
+    public function add_route(): void
+    {
+        $trip_id = (int)filter_input(INPUT_POST, 'trip_id',FILTER_VALIDATE_INT);
+        $this->view->render('add_route', [
+            'title' => 'Add Route',
+            'trip_id' => $trip_id,
+        ]);
+    }
     /**
      * creates route  in DB
      * @return void
@@ -54,20 +62,32 @@ class RouteController extends \app\core\AbstractController
     {
         $data = $this->inputData();
         $errors = \app\core\RouteValidators::validateRoute($data);
-        $this->session->trip_id = $data['trip_id'];
         if (!empty($errors)) {
-            $this->session->errors = $errors;
-            \app\core\Route::redirect('/index/add');
+            $this->view->render('add_route', [
+                'title' => 'Add Route',
+                'trip_id' => $data['trip_id'],
+                'errors' => $errors,
+            ]);
         }else{
             try {
-                $res = $this->route->create($data);
+                $this->route->create($data);
             } catch (Exception $e) {
                 $this->outputException($e->getMessage());
             }
+            $this->session->trip_id = $data['trip_id'];
             \app\core\Route::redirect('/index/show');
         }
     }
 
+    public function edit_route(): void
+    {
+        $trip_id = (int)filter_input(INPUT_POST, 'trip_id',FILTER_VALIDATE_INT);
+        $route = $this->route->getByTripId($trip_id);
+        $this->view->render('update_route', [
+            'title' => 'Update Route',
+            'route' => $route,
+        ]);
+    }
     /**
      * updates  route in DB;
      * @return void
@@ -77,16 +97,20 @@ class RouteController extends \app\core\AbstractController
     {
         $data = $this->inputData();
         $errors = \app\core\RouteValidators::validateRoute($data);
-        $this->session->trip_id = $data['trip_id'];
         if (!empty($errors)) {
-            $this->session->errors = $errors;
-            \app\core\Route::redirect('/index/edit');
+            $route = $this->route->getByTripId($data['trip_id']);
+            $this->view->render('update_route', [
+                'title' => 'Update Route',
+                'route' => $route,
+                'errors' => $errors,
+            ]);
         }else{
             try {
-                $res = $this->route->update($data);
+                $this->route->update($data);
             } catch (Exception $e) {
                 $this->outputException($e->getMessage());
             }
+            $this->session->trip_id = $data['trip_id'];
             \app\core\Route::redirect('/index/show');
         }
     }

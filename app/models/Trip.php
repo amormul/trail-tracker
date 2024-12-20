@@ -225,10 +225,10 @@ class Trip extends \app\core\AbstractDB
      * @param int $id The ID of the inventory to remove.
      * @return bool True if the association was removed successfully, false otherwise.
      */
-    function deleteTripInventory(int $id): bool
+    function deleteTripInventory(int $tripId, int $invId): bool
     {
-        $stmt = $this->db->prepare("DELETE FROM inventory_trip WHERE inventory_id = ?");
-        $stmt->bind_param("i", $id);
+        $stmt = $this->db->prepare("DELETE FROM inventory_trip WHERE inventory_id = ? AND trip_id = ?");
+        $stmt->bind_param("ii", $invId, $tripId);
 
         return $stmt->execute();
     }

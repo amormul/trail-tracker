@@ -20,30 +20,14 @@
                                 </span>
                             </div>
                         </label>
-                        <input type="file" id="coverPhoto" name="trip_photo" class="d-none" accept="image/*" />
+                        <input type="file" id="coverPhoto" name="photo" class="d-none" accept="image/*" />
                     </div>
                     <div class="d-flex justify-content-between align-items-center">
+                        <?php if (isset($errors['photo'])): ?>
+                            <small class="text-danger"><?= $errors['photo'] ?></small>
+                        <?php endif; ?>
                         <small class="text-muted photo-name" id="coverPhotoName"></small>
                         <button type="button" class="btn btn-sm btn-danger d-none ml-2 clear-btn" id="coverPhotoClear">
-                            Clear
-                        </button>
-                    </div>
-
-                    <!-- Travel Path Photo -->
-                    <label for="travelPathPhoto" class="d-block mt-2">Route map:</label>
-                    <div class="photo-section mb-2 text-center border border-secondary rounded p-3">
-                        <label for="travelPathPhoto" class="d-flex justify-content-center align-items-center photo-label">
-                            <div id="travelPathPreview">
-                                <span class="d-block text-center mb-2">
-                                    <img src="/images/add.png" alt="Add" class="img-fluid w-50" />
-                                </span>
-                            </div>
-                        </label>
-                        <input type="file" id="travelPathPhoto" name="route_photo" class="d-none" accept="image/*" />
-                    </div>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <small class="text-muted photo-name" id="travelPathName"></small>
-                        <button type="button" class="btn btn-sm btn-danger d-none ml-2 clear-btn" id="travelPathClear">
                             Clear
                         </button>
                     </div>
@@ -59,8 +43,11 @@
                             class="form-control"
                             id="hikeName"
                             name="name"
-                            placeholder="Enter trip name..."
-                            required />
+                            value="<?= htmlspecialchars($old['name'] ?? '') ?>"
+                            placeholder="Enter trip name..." />
+                        <?php if (isset($errors['name'])): ?>
+                            <small class="text-danger"><?= $errors['name'] ?></small>
+                        <?php endif; ?>
                     </div>
                     <div class="form-group">
                         <label for="hikeDescription">Trip description:</label>
@@ -69,8 +56,10 @@
                             id="hikeDescription"
                             name="description"
                             rows="3"
-                            placeholder="Enter some description here..."
-                            required></textarea>
+                            placeholder="Enter some description here..."><?= htmlspecialchars($old['description'] ?? '') ?></textarea>
+                        <?php if (isset($errors['description'])): ?>
+                            <small class="text-danger"><?= $errors['description'] ?></small>
+                        <?php endif; ?>
                     </div>
 
                     <!-- Difficulty Section -->
@@ -80,9 +69,12 @@
                             <select class="form-control" id="difficulty" name="difficulty_id">
                                 <option disabled selected>Choose difficulty</option>
                                 <?php foreach ($difficulties as $difficulty): ?>
-                                    <option value="<?= $difficulty['id'] ?>"><?= $difficulty['name'] ?></option>
+                                    <option value="<?= $difficulty['id'] ?>" <?= (isset($old['difficulty_id']) && $old['difficulty_id'] == $difficulty['id']) ? 'selected' : '' ?>><?= $difficulty['name'] ?></option>
                                 <?php endforeach; ?>
                             </select>
+                            <?php if (isset($errors['difficulty_id'])): ?>
+                                <small class="text-danger"><?= $errors['difficulty_id'] ?></small>
+                            <?php endif; ?>
                         </div>
                         <div class="col-md-6">
                             <label>Add your own difficulty:</label>
@@ -103,9 +95,12 @@
                             <select class="form-control" id="status_id" name="status_id">
                                 <option disabled selected>Choose status</option>
                                 <?php foreach ($statuses as $status): ?>
-                                    <option value="<?= $status['id'] ?>"><?= $status['name'] ?></option>
+                                    <option value="<?= $status['id'] ?>" <?= (isset($old['status_id']) && $old['status_id'] == $status['id']) ? 'selected' : '' ?>><?= $status['name'] ?></option>
                                 <?php endforeach; ?>
                             </select>
+                            <?php if (isset($errors['status_id'])): ?>
+                                <small class="text-danger"><?= $errors['status_id'] ?></small>
+                            <?php endif; ?>
                         </div>
                         <div class="col-md-6">
                             <label for="customStatus">Enter your own status:</label>
@@ -114,6 +109,7 @@
                                 class="form-control"
                                 id="customStatus"
                                 name="status"
+                                value="<?= htmlspecialchars($old['status'] ?? '') ?>"
                                 placeholder="Enter status..." />
                         </div>
                     </div>
@@ -127,7 +123,10 @@
                                 class="form-control"
                                 id="startDate"
                                 name="start_date"
-                                required />
+                                value="<?= $old['start_date'] ?? '' ?>" />
+                            <?php if (isset($errors['start_date'])): ?>
+                                <small class="text-danger"><?= $errors['start_date'] ?></small>
+                            <?php endif; ?>
                         </div>
                         <div class="col-md-6">
                             <label for="endDate">Choose end date:</label>
@@ -136,18 +135,11 @@
                                 class="form-control"
                                 id="endDate"
                                 name="end_date"
-                                required />
+                                value="<?= $old['end_date'] ?? '' ?>" />
+                            <?php if (isset($errors['end_date'])): ?>
+                                <small class="text-danger"><?= $errors['end_date'] ?></small>
+                            <?php endif; ?>
                         </div>
-                    </div>
-                    <div class="form-group mt-3">
-                        <label for="routeDescription">Enter route description:</label>
-                        <input
-                            type="text"
-                            class="form-control"
-                            id="routeDescription"
-                            name="route_description"
-                            placeholder="Route description..."
-                            required />
                     </div>
                 </div>
             </div>
@@ -161,7 +153,7 @@
                         name="inventory[]"
                         multiple="multiple">
                         <?php foreach ($inventories as $inventory): ?>
-                            <option value="<?= $inventory['id'] ?>"><?= $inventory['name'] ?></option>
+                            <option value="<?= $inventory['id'] ?>" <?= (isset($old['inventory']) && in_array($inventory['id'], $old['inventory'])) ? 'selected' : '' ?>><?= $inventory['name'] ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>
@@ -180,6 +172,7 @@
         </form>
     </div>
 </main>
+
 
 <!-- Difficulty Modal -->
 <div
@@ -211,8 +204,7 @@
                             class="form-control"
                             id="modalDifficultyName"
                             name="name"
-                            placeholder="Enter difficulty name..."
-                            required />
+                            placeholder="Enter difficulty name..." />
                     </div>
                     <div class="form-group">
                         <label for="modalDifficultyDescription">Description:</label>
@@ -221,8 +213,7 @@
                             id="modalDifficultyDescription"
                             name="description"
                             rows="3"
-                            placeholder="Enter description..."
-                            required></textarea>
+                            placeholder="Enter description..."></textarea>
                     </div>
                 </div>
                 <div class="modal-footer">

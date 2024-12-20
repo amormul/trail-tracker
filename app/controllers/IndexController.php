@@ -47,7 +47,7 @@ class IndexController extends AbstractController
     {
         $tripId = filter_input(INPUT_POST, 'trip_id', FILTER_VALIDATE_INT) ?: $this->session->trip_id;
         $trip = $this->getEnrichedTrip($tripId);
-        $route = $this->model->getById('routes', 'id', 1);
+        $route = $this->model->getById('routes', 'trip_id', $trip['id']);
         $inventories = $this->enrichInventoryWithParams($this->model->getInventoryByTrip($tripId));
 
         $this->view->render('trip', [
@@ -274,8 +274,11 @@ class IndexController extends AbstractController
         }
     }
 
-    private function enrichTrips(array $trips): array
+    private function enrichTrips(?array $trips): array
     {
+        if (!$trips) {
+            return [];
+        }
         foreach ($trips as &$trip) {
             $trip['status'] = $this->model->getStatusById($trip['status_id'])['name'];
             $trip['difficulty'] = $this->model->getDifficultyById($trip['difficulty_id'])['name'];

@@ -2,6 +2,8 @@
 
 namespace app\models;
 
+use app\core\Helpers;
+
 class Route extends \app\core\AbstractDB
 {
     private string $fileDir = "\storage\imageRoute";
@@ -9,7 +11,7 @@ class Route extends \app\core\AbstractDB
     public function __construct()
     {
         parent::__construct();
-        $this->fileDir = realpath($this->fileDir);
+
     }
 
     /**
@@ -37,122 +39,77 @@ class Route extends \app\core\AbstractDB
             /* выполнение запроса */
             $stmt->execute();
             /* Связываем переменные результата */
-            $stmt->bind_result($data);
-            $stmt->fetch();
-            return $data;
+            return $stmt->get_result()->fetch_assoc();
         }
         return null;
     }
 
     /**
-     * copying a file Photo from temp folder to folder images
-     * @param array|null $photo
-     * @return void
-     * @throws \Exception
-     */
-    function savePhoto(array $photo=null): void
-    {
-        $this->file = '';
-        if(empty($photo)){
-            return;
-        }
-        if (!empty($photo['name'])) {
-            $extension = pathinfo($photo['name'], PATHINFO_EXTENSION);
-            $uniqueName = 'route' . uniqid() . '.' . $extension;
-            $this->file = $this->fileDir . DIRECTORY_SEPARATOR . $uniqueName;
-            if (!move_uploaded_file($photo['tmp_name'], $this->file)) {
-                $this->file = '';
-                throw new \Exception('Photo was not uploaded: ' . $this->file);
-            }
-        }
-    }
-
-    /**
-     * deleting a file Photo from  folder images
-     * @param array $data
-     * @return void
-     * @throws \Exception
-     */
-    function deletePhoto(array $data): void
-    {
-        $route = $this->getByTripId($data['trip_id']);
-        if(!empty($route['photo'])) {
-            $this->file = $route['photo'];
-            unlink($this->file);
-            if (!unlink($this->file)) {
-                throw new \Exception('Photo was not deleted: ' . $this->file);
-            }
-        }
-        $this->file = '';
-    }
-
-    /**
      * creates route
-     * @param array $route
+     * @param array $data
      * @return bool
      * @throws \Exception
      */
-    public function create(array $route) : bool
+    public function create(array $data) : bool
     {
-        $this->savePhoto($route['photo']);
-        $route['trip_id'] = 1;
+        $this->file = Helpers::savePhoto($this->fileDir,$data['photo']);
+        $data['trip_id'] = 1;
+        var_dump($data);
         $query = "INSERT INTO routes (trip_id, description,photo) VALUES ( ?,?,?);" ;
-        var_dump($query);
         /* создание подготавливаемого запроса */
         if($stmt = $this->db->prepare($query)) {
             /* связывание параметров с метками */
-            $stmt->bind_param("iss", $route['trip_id'], $route['description'], $this->file);
+            $stmt->bind_param("iss", $data['trip_id'], $data['description'], $this->file);
             /* выполнение запроса */
             return $stmt->execute();
         }
         return false;
     }
 
+    /**
+     * deleting a file Photo from  folder images
+     * @param int $trip_id
+     * @return void
+     * @throws \Exception
+     */
+    function deletePhoto(int $trip_id): void
+    {
+        $route = $this->getByTripId($trip_id);
+        if(!empty($route['photo'])) {
+            $this->file = $route['photo'];
+            Helpers::deletePhoto($this->file);
+        }
+        $this->file = '';
+    }
     /**
      * updates  route by id
      * @param array $route
      * @return bool
      * @throws \Exception
      */
-    public function update(array $route) : bool
+    public function update(array $data) : bool
     {
-        $this->deletePhoto($route);
-        $this->savePhoto($route['photo']);
+        $this->deletePhoto($data['trip_id']);
+        $this->file = Helpers::savePhoto($this->fileDir,$data['photo']);
+        $data['trip_id'] = 1;
+        var_dump($data);
         $query = "UPDATE routes SET description=?,photo=? WHERE trip_id = ?;" ;
         /* создание подготавливаемого запроса */
         if($stmt = $this->db->prepare($query)) {
             /* связывание параметров с метками */
-            $stmt->bind_param("ssi", $route['description'], $this->file, $route['trip_id']);
+            $stmt->bind_param("ssi", $data['description'], $this->file, $data['trip_id']);
             /* выполнение запроса */
             return $stmt->execute();
         }
         return false;
     }
 
-    /**
-     * deletes route
-     * @param int $route_id
-     * @return bool
-     */
-    public function delete(int $trip_id) : bool
-    {
-        $query = "DELETE FROM routes WHERE trip_id = ?;";
-          /* создание подготавливаемого запроса */
-        if($stmt = $this->db->prepare($query)) {
-            /* связывание параметров с метками */
-            $stmt->bind_param("i", $trip_id);
-            /* выполнение запроса */
-            return $stmt->execute();
-        }
-        return false;
-    }
     /**
      * adds a like to the route from the user
      * @param int $route_id
      * @param int $user_id
      * @return bool
      */
-
     public function like(int $route_id, int $user_id) : bool
     {
         $query = "SELECT * FROM likes_route WHERE route_id = ? AND user_id = ?;";
@@ -162,21 +119,15 @@ class Route extends \app\core\AbstractDB
             $stmt->bind_param("ii", $route_id, $user_id);
             /* выполнение запроса */
             $stmt->execute();
-            /* Связываем переменные результата */
-            $stmt->bind_result($data);
-            if ($stmt->fetch()) {
-                var_dump($data);
-                if(empty($data)){
-                    return $this->addLike($route_id,$user_id);
-                }else{
-                    return $this->deleteLike($route_id,$user_id);
-                }
+            $res = $stmt->get_result()->fetch_assoc();
+            if (empty($res)) {
+                return $this->addLike($route_id,$user_id);
+            }else{
+                return $this->deleteLike($route_id,$user_id);
             }
         }
         return false;
     }
-
-
 
     public function addLike(int $route_id, int $user_id) : bool
     {
@@ -198,7 +149,7 @@ class Route extends \app\core\AbstractDB
      */
     public function countLikes(int $id) : int
     {
-        $query = "SELECT COUNT(id) as count FROM likes_route WHERE route_id = ?";
+        $query = "SELECT COUNT(*) as count FROM likes_route WHERE route_id = ?";
         $count = 0;
         /* создание подготавливаемого запроса */
         if($stmt = $this->db->prepare($query)) {
@@ -206,10 +157,9 @@ class Route extends \app\core\AbstractDB
             $stmt->bind_param("i", $id);
             /* выполнение запроса */
             $stmt->execute();
+            $res = $stmt->get_result()->fetch_assoc();
             /* Связываем переменные результата */
-            $stmt->bind_result($count);
-            $stmt->fetch();
-            $stmt->close();
+            $count = $res["count"];
         }
         return $count;
     }

@@ -29,6 +29,19 @@ class RouteValidators
     ];
 
     /**
+     * Checking for the presence of the transferred file
+     * @param array $file
+     * @return bool
+     */
+    protected static function isNoFile(array $file): bool
+    {
+        if ($file['error'] === UPLOAD_ERR_NO_FILE && $file['name'] === '') {
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * Checking if the file has been downloaded
      * @param array $file
      * @return string|null
@@ -71,14 +84,19 @@ class RouteValidators
     /**
      * check all photos values
      * @param array|null $photo
+     * @param bool $isFileNull = true
      * @return string|null
      */
-    protected static function validatePhoto(array $photo=null): string | null
+    protected static function validatePhoto(array $photo=null, bool $isFileNull = false): string | null
     {
         if(empty($photo)){
             return null;
         }
-        $res = self::isNoFileError($photo);
+        if (self::isNoFile($photo ) && $isFileNull){
+            return null;
+        }
+
+        $res = self::isNoFileError($photo );
         if(!empty($res)){
             return  $res;
         }
@@ -92,10 +110,16 @@ class RouteValidators
         }
         return null;
     }
+
+    /**
+     * Check route parameters photo and description
+     * @param array $data
+     * @return array
+     */
     public static function validateRoute(array $data): array
     {
         $errors = [];
-        $res = self::validatePhoto($data['photo']);
+        $res = self::validatePhoto($data['photo'], true);
         if(!empty($res)) {
             $errors[] = $res;
         }

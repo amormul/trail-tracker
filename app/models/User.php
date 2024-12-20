@@ -1,5 +1,7 @@
 <?php
 
+namespace app\models;
+
 class User extends \app\core\AbstractDB
 {
     public function getByLogin(string $login): array

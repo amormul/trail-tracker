@@ -108,7 +108,10 @@
                         <?php if (!$route): ?>
                             <div class="d-flex flex-column align-items-center">
                                 <p class="font-weight-bold text-center">No route yet</p>
-                                <button class="btn btn-primary btn-sm">Add route</button>
+                                <form action="<?= app\core\Route::url('route', 'add_route') ?>" method="post">
+                                    <input type="hidden" name="trip_id" value="<?= $trip['id'] ?>">
+                                    <input type="submit" class="btn btn-primary btn-sm" value="Add route">
+                                </form>
                             </div>
                         <?php else: ?>
                             <p class="text-center font-weight-bold">Route: <?= $route['description'] ?></p>

@@ -92,7 +92,7 @@ class IndexController extends AbstractController
             Route::redirect('/index/create');
         }
 
-        $data['photo'] = Helpers::savePhoto($_FILES['photo'], $this->fileDir);
+        $data['photo'] = Helpers::savePhoto($this->fileDir, $_FILES['photo']);
         $data['user_id'] = 1;
         $tripId = $this->model->create($data);
 
@@ -239,7 +239,7 @@ class IndexController extends AbstractController
             $oldTrip = $this->fetchTripData($data['id']);
             $this->deleteOldPhoto($oldTrip['photo']);
 
-            return Helpers::savePhoto($_FILES['photo'], $this->fileDir);
+            return Helpers::savePhoto($this->fileDir, $_FILES['photo']);
         }
 
         $trip = $this->fetchTripData($data['id']);

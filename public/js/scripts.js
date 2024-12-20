@@ -31,9 +31,12 @@ function setupPhotoInput(config) {
   const fileName = document.getElementById(fileNameId);
   const clearButton = document.getElementById(clearButtonId);
 
+  if (!fileInput || !fileInput) {
+    return;
+  }
+
   fileInput.addEventListener("change", function (event) {
     const file = event.target.files[0];
-
     if (file) {
       const reader = new FileReader();
       reader.onload = function (e) {
@@ -79,7 +82,10 @@ function initializeApp() {
   ];
 
   photoInputConfigs.forEach(setupPhotoInput);
+
 }
+
+
 
 // Initialize the app when the DOM is fully loaded
 document.addEventListener("DOMContentLoaded", initializeApp);

@@ -22,10 +22,11 @@ class InventoryController extends AbstractController
      */
     public function index(): void
     {
-        $inventory = $this->model->getAllInventory();
+        $inventories = $this->model->getAllInventory();
+        $inventories = $inventories ?: [];
         $this->view->render('inventory', [
             'title' => 'Inventory List',
-            'inventories' => $inventory
+            'inventories' => $inventories
         ]);
     }
     /**
@@ -45,25 +46,25 @@ class InventoryController extends AbstractController
      */
     public function store(): void
     {
-        $id = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
+        print_r($_POST);
         $name = filter_input(INPUT_POST, 'name');
         $description = filter_input(INPUT_POST, 'description');
         $photo = $_FILES['photo'] ?? null;
 
-        if ($id && $name && $description) {
-            $data = [
-                'id' => $id,
+        if ($name && $description) {
+            $inventory = [
                 'name' => $name,
                 'description' => $description
             ];
             $photoPath = $this->savePhoto($photo);
-            $data['photo'] = $photoPath;
+            $inventory['photo'] = $photoPath;
 
-            if ($this->model->create($data)) {
+            if ($this->model->create($inventory)) {
                 Route::redirect('/inventory');
             }
+        }else{
+            die('error');
         }
-        Route::redirect('/dda_inventory/' . ($data['id'] ?? ''));
     }
 
     /**
@@ -86,24 +87,7 @@ class InventoryController extends AbstractController
      */
     public function update(): void
     {
-        $id = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
-        $name = filter_input(INPUT_POST, 'name');
-        $description = filter_input(INPUT_POST, 'description');
-        $photo = $_FILES['photo'] ?? null;
-        if ($id && $name && $description) {
-            $data = [
-                'id' => $id,
-                'name' => $name,
-                'description' => $description
-            ];
-            if ($photo) {
-                $data['photo'] = $this->savePhoto($photo);
-            }
-            if ($this->model->update($data)) {
-                Route::redirect('/inventory');
-            }
-        }
-        Route::redirect('/update_inventory/' . ($data['id'] ?? ''));
+        //TODO
     }
 
 
@@ -115,7 +99,9 @@ class InventoryController extends AbstractController
     public function delete(): void
     {
         $id = filter_input(INPUT_POST, 'id');
-
+        if ((int)$id == 0) {
+            die('error 404');
+        }
         //TODO: validate
 
         $this->model->delete($id);
@@ -129,11 +115,18 @@ class InventoryController extends AbstractController
      */
     private function savePhoto(array $photo): ?string
     {
-        $uploadDir = 'uploads/inventory/';
+        $uploadDir = 'storage/imageInventory/';
         $uploadFile = $uploadDir . basename($photo['name']);
+        //TODO: if file not exist
         if (move_uploaded_file($photo['tmp_name'], $uploadFile)) {
             return $uploadFile;
         }
         return null;
     }
+
+    private function show()
+    {
+        //TODO
+    }
+
 }

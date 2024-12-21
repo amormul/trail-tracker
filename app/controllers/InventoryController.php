@@ -46,7 +46,6 @@ class InventoryController extends AbstractController
      */
     public function store(): void
     {
-        print_r($_POST);
         $name = filter_input(INPUT_POST, 'name');
         $description = filter_input(INPUT_POST, 'description');
         $photo = $_FILES['photo'] ?? null;
@@ -63,7 +62,7 @@ class InventoryController extends AbstractController
                 Route::redirect('/inventory');
             }
         }else{
-            die('error');
+            exit('error');
         }
     }
 
@@ -100,7 +99,7 @@ class InventoryController extends AbstractController
     {
         $id = filter_input(INPUT_POST, 'id');
         if ((int)$id == 0) {
-            die('error 404');
+            exit('error 404');
         }
         //TODO: validate
 

@@ -122,22 +122,21 @@
 
                         <!-- Photo Gallery Section -->
                         <p class="mt-4"><strong>Photo Gallery:</strong></p>
+                        <div class="d-flex flex-column align-items-center">
+                            <form action="<?= app\core\Route::url('gallery', 'addPhoto') ?>" method="post">
+                                <input type="hidden" name="trip_id" value="<?= $trip['id'] ?>">
+                                <input type="submit" class="btn btn-primary btn-sm" value="Add photo">
+                            </form>
+                        </div>
                         <?php if (empty($photos)): ?>
-                            <div class="d-flex flex-column align-items-center">
-                                <p class="font-weight-bold text-center">No photos available</p>
-                                <form action="<?= app\core\Route::url('gallery', 'add') ?>" method="post">
-                                    <input type="hidden" name="trip_id" value="<?= $trip['id'] ?>">
-                                    <input type="submit" class="btn btn-primary btn-sm" value="Add photo">
-                                </form>
-                            </div>
+                            <p class="font-weight-bold text-center">No photos available</p>
                         <?php else: ?>
                             <div class="row">
                                 <?php foreach ($photos as $photo): ?>
                                     <div class="col-6 col-md-3 mb-4">
                                         <img src="<?= $photo['photo'] ?>" class="img-thumbnail" alt="Photo" />
                                         <div class="text-center mt-1">
-                                            <span class="d-block"><?= $photo['likes'] ?> Likes</span>
-                                            <form action="<?= app\core\Route::url('gallery', 'show') ?>" method="post">
+                                            <form action="<?= app\core\Route::url('index', 'show') ?>" method="post">
                                                 <input type="hidden" name="id" value="<?= $photo['id'] ?>">
                                                 <input type="submit" class="btn btn-primary btn-sm w-100" value="View">
                                             </form>

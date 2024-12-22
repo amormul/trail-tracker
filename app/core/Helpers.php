@@ -19,7 +19,7 @@ class Helpers
         }
         if (!empty($photo['name'])) {
             $extension = pathinfo($photo['name'], PATHINFO_EXTENSION);
-            $uniqueName = 'route' . uniqid() . '.' . $extension;
+            $uniqueName = 'img_' . uniqid() . '.' . $extension;
             $fileDir = ltrim($path, DIRECTORY_SEPARATOR);
             $file = $fileDir . DIRECTORY_SEPARATOR . $uniqueName;
             if (!move_uploaded_file($photo['tmp_name'], $file)) {
@@ -40,6 +40,7 @@ class Helpers
      */
     public static function deletePhoto(string $file): void
     {
+        var_dump($file);
         if(!empty($file)) {
             $fileDir = ltrim($file, DIRECTORY_SEPARATOR);
             if (!unlink($fileDir)) {

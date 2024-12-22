@@ -10,6 +10,7 @@ use app\models\Inventory;
 use app\models\Trip;
 use RuntimeException;
 use app\core\TripValidator;
+use app\models\Gallery;
 
 class IndexController extends AbstractController
 {
@@ -49,12 +50,14 @@ class IndexController extends AbstractController
         $trip = $this->getEnrichedTrip($tripId);
         $route = $this->model->getById('routes', 'trip_id', $trip['id']);
         $inventories = $this->enrichInventoryWithParams($this->model->getInventoryByTrip($tripId));
+        $photos = $this->getPhotosForTrip($tripId);
 
         $this->view->render('trip', [
             'title' => 'Trip page',
             'trip' => $trip,
             'route' => $route,
-            'inventories' => $inventories
+            'inventories' => $inventories,
+            'photos' => $photos
         ]);
     }
 
@@ -324,5 +327,11 @@ class IndexController extends AbstractController
         $this->model->checkLike($tripId, 1)
             ? $this->model->addLike($tripId, 1)
             : $this->model->deleteLike($tripId, 1);
+    }
+
+    public function getPhotosForTrip(int $tripId): array
+    {
+        $galleryModel = new Gallery();
+        return $galleryModel->getPhotosByTripId($tripId);
     }
 }

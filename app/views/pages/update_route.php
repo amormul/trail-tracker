@@ -14,6 +14,7 @@
                     <!-- Travel Path Photo -->
                     <label for="travelPathPhoto" class="d-block mt-2">Route map:</label>
                     <div class="photo-section mb-2 text-center border border-secondary rounded p-3">
+                        <input type="hidden" name="current_photo" id="travelCurrentPhoto" value="<?=$route['photo']?>">
                         <label for="travelPathPhoto" class="d-flex justify-content-center align-items-center photo-label">
                             <div id="travelPathPreview">
                                 <span class="d-block text-center mb-2">
@@ -24,8 +25,8 @@
                         <input type="file" id="travelPathPhoto" name="route_photo" class="d-none" accept="image/*" />
                     </div>
                     <div class="d-flex justify-content-between align-items-center">
-                        <small class="text-muted photo-name" id="travelPathName"><?=$route['photo']?></small>
-                            <button type="button" class="btn btn-sm btn-danger ml-2 clear-btn" id="travelPathClear">
+                        <small class="text-muted photo-name" id="travelPathName"><?php if($exist_photo):?> <?=$route['photo']?> <?php endif;?></small>
+                            <button type="button" class="btn btn-sm btn-danger ml-2 clear-btn <?php if(!$exist_photo): ?>d-none<?php endif;?>" id="travelPathClear">
                                 Clear
                             </button>
                     </div>
@@ -39,9 +40,7 @@
                             id="routeDescription"
                             name="route_description"
                             rows="5"
-                            required>
-                            <?=$route['description']?>
-                        </textarea>
+                            required><?=$route['description']?></textarea>
                     </div>
                 </div>
             </div>
@@ -55,5 +54,21 @@
             </div>
         </form>
     </div>
+    <?php if (isset($errors)): ?>
+        <div class="row">
+            <div class="col-7 d-flex justify-content-between align-items-center mb-2">
+                <h3 class="text-center">Error</h3>
+            </div>
+        </div>
+        <ul>
+            <?php if(is_array($errors)): ?>
+                <?php foreach ($errors as $error): ?>
+                    <li><?=$error?></li>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <li><?=$errors?></li>
+            <?php endif; ?>
+        </ul>
+    <?php endif; ?>
 </main>
 

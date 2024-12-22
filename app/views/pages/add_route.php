@@ -54,4 +54,20 @@
             </div>
         </form>
     </div>
+    <?php if (isset($errors)): ?>
+        <div class="row">
+            <div class="col-7 d-flex justify-content-between align-items-center mb-2">
+                <h3 class="text-center">Error</h3>
+            </div>
+        </div>
+        <ul>
+            <?php if(is_array($errors)): ?>
+                <?php foreach ($errors as $error): ?>
+                    <li><?=$error?></li>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <li><?=$errors?></li>
+            <?php endif; ?>
+        </ul>
+    <?php endif; ?>
 </main>

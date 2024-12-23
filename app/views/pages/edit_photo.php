@@ -1,6 +1,6 @@
 <div class="container mt-5 pt-4 mb-5">
     <!-- Back Button -->
-    <a href="#" class="btn btn-primary text-white btn-sm mr-2">Back</a>
+    <a href="/gallery/backToPhoto?id=<?= $photo['id'] ?>" class="btn btn-primary text-white btn-sm mr-2">Back</a>
     <!-- Form -->
     <form action="<?= app\core\Route::url('gallery', 'update') ?>" method="POST" enctype="multipart/form-data" class="row mt-4 bg-light shadow rounded p-4">
         <input type="hidden" name="id" value="<?= $photo['id'] ?>">

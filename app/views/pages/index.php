@@ -23,7 +23,7 @@
                                     </p>
                                     <div class="row">
                                         <div class="col-6">
-                                            <p><strong>Author:</strong> John Doe</p>
+                                            <p><strong>Author:</strong> <?= $trip['user'] ?></p>
                                             <p><strong>Start Date:</strong> <?= $trip['start_date'] ?></p>
                                         </div>
                                         <div class="col-6">

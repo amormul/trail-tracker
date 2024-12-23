@@ -43,7 +43,7 @@
                         <!-- Two Columns for Properties -->
                         <div class="row">
                             <div class="col-7">
-                                <p><strong>Author:</strong> John Doe</p>
+                                <p><strong>Author:</strong> <?= $trip['user'] ?></p>
                                 <p><strong>Hike period:</strong> <?= $trip['start_date'] ?> - <?= $trip['end_date'] ?></p>
                             </div>
                             <div class="col-5">

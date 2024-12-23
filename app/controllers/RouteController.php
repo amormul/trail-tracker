@@ -7,8 +7,6 @@ use app\models\Route;
 
 class RouteController extends \app\core\AbstractController
 {
-
-
     public function __construct()
     {
         parent::__construct();

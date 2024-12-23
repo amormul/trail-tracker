@@ -1,13 +1,16 @@
 <div class="container mt-5 pt-4 mb-5">
     <!-- Back Button -->
-    <a href="/gallery/backToPhoto?id=<?= $photo['id'] ?>" class="btn btn-primary text-white btn-sm mr-2">Back</a>
+    <form action="<?= app\core\Route::url('gallery', 'viewPhoto') ?>" method="post">
+        <input type="hidden" name="id" value="<?= $photo['id'] ?>">
+        <input type="submit" class="btn btn-primary text-white btn-sm mr-2" value="Cancel">
+    </form>
     <!-- Form -->
     <form action="<?= app\core\Route::url('gallery', 'update') ?>" method="POST" enctype="multipart/form-data" class="row mt-4 bg-light shadow rounded p-4">
         <input type="hidden" name="id" value="<?= $photo['id'] ?>">
     <!-- Left Part: Photo -->
         <div class="col-md-6 text-center">
             <div class="form-group">
-                <img src="<?= $photo['photo'] ?>" alt="Current Photo" class="img-fluid rounded shadow mb-3">
+                <img src="<?= $photo['photo'] ?>" alt="Current Photo" class="img-fluid rounded shadow mb-3" style="width: 270px; height: auto; display: block; margin: 0 auto;">
             </div>
             <div class="form-group">
                 <label for="photoFile" class="form-label">New Photo:</label>

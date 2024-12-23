@@ -8,6 +8,13 @@ use app\models\Gallery;
 
 class GalleryController extends AbstractController
 {
+    private Gallery $gallery;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->gallery = new Gallery();
+    }
     /**
      * opens add_photo page
      * @return void
@@ -26,18 +33,28 @@ class GalleryController extends AbstractController
     public function viewPhoto(): void
     {
         $photoId = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
-        $gallery = new Gallery();
-        $photo = $gallery->getPhotoById($photoId);
+        $photo = $this->gallery->getPhotoById($photoId);
         $this->view->render('photo', [
             'title' => 'Photo Details',
             'photo' => $photo,
         ]);
     }
+
+    public function backToPhoto(): void
+    {
+        $photoId = isset($_GET['id']) ? (int)$_GET['id'] : null;
+        $photo = $this->gallery->getPhotoById($photoId);
+        $this->view->render('photo', [
+            'photo' => $photo,
+            'title' => 'View Photo'
+        ]);
+    }
+
+
     public function editPhoto(): void
     {
         $photoId = $_POST['id'] ?? null;
-        $gallery = new Gallery();
-        $photo = $gallery->getPhotoById($photoId);
+        $photo = $this->gallery->getPhotoById($photoId);
         $this->view->render('edit_photo', [
             'title' => 'Edit Photo',
             'photo' => $photo
@@ -47,8 +64,7 @@ class GalleryController extends AbstractController
     public function update(): void
     {
         $photoId = isset($_POST['id']) ? (int)$_POST['id'] : null;
-        $gallery = new Gallery();
-        $existingPhoto = $gallery->getPhotoById($photoId);
+        $existingPhoto = $this->gallery->getPhotoById($photoId);
         $file = $_FILES['file'] ?? null;
         $photoPath = $existingPhoto['photo'];
         if ($file && $file['error'] === UPLOAD_ERR_OK) {
@@ -63,10 +79,9 @@ class GalleryController extends AbstractController
             }
         }
         $comment = $_POST['comment'] ?? $existingPhoto['comment'];
-        $gallery->edit($photoId, $photoPath, $comment);
+        $this->gallery->edit($photoId, $photoPath, $comment);
         unset($gallery);
-        // Перенаправлення на сторінку редагованого фото
-        $route = new \app\core\Route();
-        $route->redirect('/photo?id=' . $photoId);
+        $route = new Route();
+        $route->redirect('/gallery/viewPhoto?id=' . $photoId);
     }
 }

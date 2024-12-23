@@ -180,6 +180,7 @@ class IndexController extends AbstractController
                 : $this->model->deleteLike($tripId, 1);
         }
 
+        $this->session->trip_id = $tripId;
         Route::redirect($_SERVER['HTTP_REFERER'] ?? '/index/index');
     }
 

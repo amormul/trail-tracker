@@ -4,17 +4,21 @@ namespace app\controllers;
 
 use app\core\AbstractController;
 use app\core\Route;
+use app\core\Session;
 use app\models\Gallery;
 
 class GalleryController extends AbstractController
 {
     private Gallery $gallery;
+    protected Session $session;
 
     public function __construct()
     {
         parent::__construct();
         $this->gallery = new Gallery();
+        $this->session = new Session();
     }
+
     /**
      * opens add_photo page
      * @return void
@@ -27,30 +31,26 @@ class GalleryController extends AbstractController
             'tripId' => $tripId
         ]);
     }
+
     /**
+     * shows photo info
      * @return void
      */
     public function viewPhoto(): void
     {
-        $photoId = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
+        $photoId = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT) ?? $this->session->photo_id;
         $photo = $this->gallery->getPhotoById($photoId);
+        $photo['likes'] = $this->gallery->countLikes($photoId);
         $this->view->render('photo', [
             'title' => 'Photo Details',
-            'photo' => $photo,
+            'photo' => $photo
         ]);
     }
 
-    public function backToPhoto(): void
-    {
-        $photoId = isset($_GET['id']) ? (int)$_GET['id'] : null;
-        $photo = $this->gallery->getPhotoById($photoId);
-        $this->view->render('photo', [
-            'photo' => $photo,
-            'title' => 'View Photo'
-        ]);
-    }
-
-
+    /**
+     * shows edit_photo page
+     * @return void
+     */
     public function editPhoto(): void
     {
         $photoId = $_POST['id'] ?? null;
@@ -61,6 +61,10 @@ class GalleryController extends AbstractController
         ]);
     }
 
+    /**
+     * updates photo info in DB
+     * @return void
+     */
     public function update(): void
     {
         $photoId = isset($_POST['id']) ? (int)$_POST['id'] : null;
@@ -80,8 +84,27 @@ class GalleryController extends AbstractController
         }
         $comment = $_POST['comment'] ?? $existingPhoto['comment'];
         $this->gallery->edit($photoId, $photoPath, $comment);
-        unset($gallery);
-        $route = new Route();
-        $route->redirect('/gallery/viewPhoto?id=' . $photoId);
+        \app\core\Route::redirect('/index/show');
+    }
+
+    public function like(): void
+    {
+        $photoId = filter_input(INPUT_POST, 'photo_id', FILTER_VALIDATE_INT);
+
+        if ($photoId) {
+            $this->toggleLike($photoId);
+        }
+        $referer = $_SERVER['HTTP_REFERER'] ?? '/index/index';
+        if (strpos($referer, '/gallery/viewPhoto') !== false && $photoId) {
+            $this->session->photo_id = $photoId;
+        }
+        Route::redirect($referer);
+    }
+
+    private function toggleLike(int $photoId): void
+    {
+        $this->gallery->checkLike($photoId, 1)
+            ? $this->gallery->addLike($photoId, 1)
+            : $this->gallery->deleteLike($photoId, 1);
     }
 }

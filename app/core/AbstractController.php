@@ -8,12 +8,13 @@ use app\models\User;
 abstract class AbstractController
 {
     public View $view;
+    protected Session $session;
     protected $models = [];
 
     public function __construct()
     {
         $this->view = new View();
-
+        $this->session = new Session();
     }
 
     protected function loadModel(string $name) : void

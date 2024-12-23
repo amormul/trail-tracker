@@ -7,14 +7,13 @@ use app\models\Route;
 
 class RouteController extends \app\core\AbstractController
 {
-    protected Session $session;
+
 
     public function __construct()
     {
         parent::__construct();
         $this->loadModel('route');
         $this->loadModel('user');
-        $this->session = new Session();
     }
 
     /**
@@ -69,6 +68,7 @@ class RouteController extends \app\core\AbstractController
             $this->outputException('Missing from the database trip ' .  $data['trip_id']);
         }else {
             $errors = \app\core\RouteValidators::validateRoute($data);
+            $this->session->trip_id = $data['trip_id'];
             if (!empty($errors)) {
                 $this->view->render('add_route', [
                     'title' => 'Add Route',
@@ -86,7 +86,6 @@ class RouteController extends \app\core\AbstractController
                 } catch (Exception $e) {
                     $this->outputException($e->getMessage());
                 }
-                $this->session->trip_id = $data['trip_id'];
                 \app\core\Route::redirect('/index/show');
             }
         }
@@ -123,6 +122,7 @@ class RouteController extends \app\core\AbstractController
         if (!$res){
             $this->outputException('Missing from the database trip ' .  $data['trip_id']);
         }else {
+            $this->session->trip_id = $data['trip_id'];
             $errors = \app\core\RouteValidators::validateRoute($data);
             if (!empty($errors)) {
                 $route = $this->model_route->getWhere('trip_id', $data['trip_id'], 'i');
@@ -137,7 +137,6 @@ class RouteController extends \app\core\AbstractController
                 } catch (Exception $e) {
                     $this->outputException($e->getMessage());
                 }
-                $this->session->trip_id = $data['trip_id'];
                 \app\core\Route::redirect('/index/show');
             }
         }
@@ -156,9 +155,7 @@ class RouteController extends \app\core\AbstractController
         }else {
             $user = $this->model_user->getByLogin($this->session->login);
             $user_id = $user['id'];
-
             $route = $this->model_route->getWhere('trip_id', $trip_id, 'i');
-
             $this->session->trip_id = $trip_id;
             try {
                 $res = $this->model_route->like($route['id'], $user_id);

@@ -49,7 +49,7 @@ class AbstractDB
     {
         $query = "SELECT * FROM {$this->table}";
         $result = $this->db->query($query);
-        return $result->fetch_all(MYSQLI_ASSOC) ?: null;
+        return $result->fetch_all(MYSQLI_ASSOC) ?? null;
     }
     public function add(array $data, string $types): bool
     {
@@ -103,13 +103,11 @@ class AbstractDB
         if ($stmt = mysqli_prepare($this->db, $query)) {
             $stmt->bind_param($types, $value);
             $stmt->execute();
-            $result = $stmt->get_result();
-            $result = $result->fetch_assoc();
-            return $result;
+            return $stmt->get_result()->fetch_assoc();
         }
         return null;
-
     }
+
     public function getWhereLike(string $fields1, int $value1, string $fields2, int $value2): array | null
     {
         $query = "SELECT * FROM {$this->tableLike} WHERE {$fields1}=? AND {$fields2}=?;";

@@ -4,54 +4,57 @@ namespace app\core;
 
 class Session
 {
-    private $properties = [];
+    private array $properties = [];
 
     public function __construct()
     {
         $this->start();
     }
+
     public function start(): void
     {
         session_start();
     }
 
     /**
-     * write once properties
+     * Write property to session
      * @param string $key
      * @param mixed $data
      * @return void
      */
-    public function __set(string $key,mixed $data): void
+    public function __set(string $key, mixed $data): void
     {
         $_SESSION[$key] = $data;
     }
+
     /**
-     * return once properties
+     * Get property from session
      * @param string $key
      * @return mixed
      */
-    public function __get(string $key) : mixed
+    public function __get(string $key): mixed
     {
         return $_SESSION[$key] ?? null;
     }
 
     /**
-     * delete once properties from session
+     * Remove property from session
      * @param string $key
      * @return void
      */
     public function remote(string $key): void
     {
-        if(!empty($_SESSION[$key])){
+        if (!empty($_SESSION[$key])) {
             unset($_SESSION[$key]);
         }
     }
 
+    /**
+     * Destroy session
+     * @return void
+     */
     public function destroy(): void
     {
         session_destroy();
     }
-
-
-
 }

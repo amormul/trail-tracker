@@ -1,10 +1,12 @@
 <?php
+
 namespace app\controllers;
 
 use app\core\AbstractController;
 use app\core\Route;
 use app\core\Session;
 use app\models\Inventory;
+
 class InventoryController extends AbstractController
 {
     protected Inventory $model;
@@ -62,7 +64,7 @@ class InventoryController extends AbstractController
             if ($this->model->create($inventory)) {
                 Route::redirect('/inventory');
             }
-        }else{
+        } else {
             die('error');
         }
     }
@@ -128,5 +130,4 @@ class InventoryController extends AbstractController
     {
         //TODO
     }
-
 }

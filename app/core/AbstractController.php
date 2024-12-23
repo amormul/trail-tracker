@@ -11,7 +11,6 @@ abstract class AbstractController
     public function __construct()
     {
         $this->view = new View();
-
     }
 
     public function getUserByLogin(): string
@@ -26,5 +25,4 @@ abstract class AbstractController
         $user = $userModel->getByLogin($login);
         return (int)$user['id'];
     }
-
 }

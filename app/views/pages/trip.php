@@ -43,7 +43,7 @@
                         <!-- Two Columns for Properties -->
                         <div class="row">
                             <div class="col-7">
-                                <p><strong>Author:</strong> John Doe</p>
+                                <p><strong>Author:</strong> <?= $trip['user'] ?></p>
                                 <p><strong>Hike period:</strong> <?= $trip['start_date'] ?> - <?= $trip['end_date'] ?></p>
                             </div>
                             <div class="col-5">
@@ -56,7 +56,6 @@
                             <div class="col-12 d-flex justify-content-between align-items-center">
                                 <p><strong>Inventory:</strong></p>
                                 <div class="d-flex align-items-center">
-                                    <a href="<?= app\core\Route::url('index', 'addInventory') ?>" class="btn btn-primary btn-sm mr-3">Add inventory</a>
                                     <a href="<?= app\core\Route::url('inventory') ?>" class="btn btn-primary btn-sm">All inventory</a>
                                 </div>
                             </div>
@@ -65,7 +64,10 @@
                             <div class="d-flex flex-column align-items-center">
                                 <p class="font-weight-bold text-center">No inventory items available</p>
                                 <div class="d-flex justify-content-center">
-                                    <a href="<?= app\core\Route::url('index', 'addInventory') ?>" class="btn btn-primary btn-sm">Add inventory</a>
+                                    <form action="<?= app\core\Route::url('index', 'edit') ?>" method="post">
+                                        <input type="hidden" name="trip_id" value="<?= $trip['id'] ?>">
+                                        <input type="submit" class="btn btn-primary btn-sm mr-3" value="Add inventory">
+                                    </form>
                                 </div>
                             </div>
                         <?php else: ?>
@@ -150,32 +152,4 @@
             </div>
         </div>
     </div>
-    <div
-        class="modal fade"
-        id="photoModal"
-        tabindex="-1"
-        role="dialog"
-        aria-labelledby="photoModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="photoModalLabel">Inventory Photo</h5>
-                    <button
-                        type="button"
-                        class="close"
-                        data-dismiss="modal"
-                        aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body text-center">
-                    <img
-                        id="modalPhoto"
-                        src=""
-                        class="img-fluid rounded"
-                        alt="Inventory Item" />
-                </div>
-            </div>
-        </div>
-    </div>
+    <?php include_once self::VIEWS_DIR . 'modals' . DIRECTORY_SEPARATOR . 'inv_photo.php' ?>

@@ -4,6 +4,11 @@ namespace app\core;
 
 class Helpers
 {
+    /**
+     * Filter array of needed POST data
+     * @param array $fields
+     * @return array
+     */
     public static function getPostData(array $fields): array
     {
         $data = [];
@@ -32,13 +37,11 @@ class Helpers
             $uniqueName = uniqid() . '.' . $extension;
             $fileDir = ltrim($path, DIRECTORY_SEPARATOR);
             $file = $fileDir . DIRECTORY_SEPARATOR . $uniqueName;
-            var_dump('save ' . $file);
             if (!move_uploaded_file($photo['tmp_name'], $file)) {
                 $file = '';
                 throw new \Exception('Photo was not uploaded: ' . $file);
             }
             $file = DIRECTORY_SEPARATOR . $file;
-            var_dump('bd ' . $file);
         }
         return $file;
     }
@@ -54,7 +57,6 @@ class Helpers
     {
         if (!empty($file)) {
             $fileDir = ltrim($file, DIRECTORY_SEPARATOR);
-            var_dump($file, $fileDir);
             if (!unlink($fileDir)) {
                 throw new \Exception('Photo was not deleted: ' . $file);
             }

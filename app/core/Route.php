@@ -18,16 +18,16 @@ class Route
      * Init application
      * @return void
      */
-    public function init() : void
+    public function init(): void
     {
         $controllerName = $this->getUrlComponent(0);
         $action = $this->getUrlComponent(1);
         $controllerClass = self::CONTROLLER_NAMESPACE . ucfirst($controllerName) . 'Controller';
-        if(!class_exists($controllerClass)) {
+        if (!class_exists($controllerClass)) {
             self::notFound();
         }
         $controller = new $controllerClass();
-        if(!method_exists($controller, $action)) {
+        if (!method_exists($controller, $action)) {
             self::notFound();
         }
         $controller->$action();
@@ -37,13 +37,13 @@ class Route
      * splits url into components
      * @return void
      */
-    private function loadUrlComponents() : void
+    private function loadUrlComponents(): void
     {
         $this->url = strtolower($this->url);
         $this->urlComponents = explode('/', $this->url);
         //delete first elements witch always empty
         array_shift($this->urlComponents);
-        if(count($this->urlComponents) > 1) {
+        if (count($this->urlComponents) > 1) {
             $temp = explode('?', $this->urlComponents[1]);
             $this->urlComponents[1] = $temp[0];
         }
@@ -54,10 +54,10 @@ class Route
      * @param int $index
      * @return string
      */
-    private function getUrlComponent(int $index) : string
+    private function getUrlComponent(int $index): string
     {
         $component = 'index';
-        if(!empty($this->urlComponents[$index])) {
+        if (!empty($this->urlComponents[$index])) {
             $component = $this->urlComponents[$index];
         }
         return $component;
@@ -66,7 +66,7 @@ class Route
      * Generate 404 status
      * @return never
      */
-    public static function notFound() : never
+    public static function notFound(): never
     {
         http_response_code(404);
         exit();
@@ -77,7 +77,7 @@ class Route
      * @param string $action
      * @return string
      */
-    public static function url(string $controller = self::DEFAULT_NAME, string $action = self::DEFAULT_NAME) : string
+    public static function url(string $controller = self::DEFAULT_NAME, string $action = self::DEFAULT_NAME): string
     {
         return '/' . $controller . '/' . $action;
     }
@@ -86,9 +86,9 @@ class Route
      * @param string $url
      * @return never
      */
-    public static function redirect(string $url = '/') : never
+    public static function redirect(string $url = '/'): never
     {
-        header('Location: ' . $url );
+        header('Location: ' . $url);
         exit();
     }
 }

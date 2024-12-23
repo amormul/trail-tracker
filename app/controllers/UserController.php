@@ -1,78 +1,146 @@
 <?php
+
 namespace app\controllers;
 
-use app\core\UserValidator;
+use app\core\AbstractController;
+use app\core\Route;
+use app\core\Session;
+use app\core\UserValidators;
 use app\models\User;
 
-class UserController
+class UserController extends AbstractController
 {
-    private User $model;
+    /**
+     * @var User Модель для работы с пользователями
+     */
+    protected User $model;
 
-    public function __construct(User $model)
+    /**
+     * @var Session Объект для управления сессиями
+     */
+    protected Session $session;
+
+    /**
+     * Конструктор контроллера пользователя
+     */
+    public function __construct()
     {
-        $this->model = $model;
+        parent::__construct();
+        $this->model = new User();
+        $this->session = new Session();
     }
 
-    // Страница входа
+    /**
+     * Отображает страницу входа
+     * @return void
+     */
     public function login(): void
     {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $username = $_POST['username'] ?? '';
-            $password = $_POST['password'] ?? '';
+        $errors = $this->session->errors ?? [];
+        $this->session->remote('errors');
 
-            // Валидация данных
-            $errors = UserValidator::validateLogin($username, $password);
+        $this->view->render('login', [
+            'title' => 'Login',
+            'errors' => $errors,
+        ]);
+    }
 
-            if (!empty($errors)) {
-                foreach ($errors as $error) {
-                    echo "<p class='error'>$error</p>";
-                }
-                return;
-            }
+    /**
+     * Обрабатывает данные для входа пользователя
+     * @return void
+     */
+    public function processLogin(): void
+    {
+        $data = [
+            'username' => filter_input(INPUT_POST, 'username'),
+            'password' => filter_input(INPUT_POST, 'password'),
+        ];
 
-            // Ищем пользователя
-            $user = $this->model->findUserByUsername($username);
-            if ($user && $this->model->validatePassword($password, $user['password'])) {
-                // Если данные верные, сохраняем в сессии и перенаправляем
-                $_SESSION['user_id'] = $user['id'];
-                header('Location: /dashboard');
-                exit;
-            } else {
-                echo "<p class='error'>Invalid username or password!</p>";
-            }
+        $errors = UserValidators::validateLogin($data);
+
+        if (!empty($errors)) {
+            $this->session->errors = $errors;
+            Route::redirect('/user/login');
+            return;
+        }
+
+        if ($this->model->verifyCredentials($data['username'], $data['password'])) {
+            $this->session->login = $data['username'];
+            Route::redirect('/');
         } else {
-            include 'views/login.php'; // Отображаем страницу входа
+            $this->session->errors = ['login' => 'Invalid username or password'];
+            Route::redirect('/user/login');
         }
     }
 
-    // Страница регистрации
+    /**
+     * Отображает страницу регистрации
+     * @return void
+     */
     public function register(): void
     {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $username = $_POST['username'] ?? '';
-            $email = $_POST['email'] ?? '';
-            $password = $_POST['password'] ?? '';
-            $confirmPassword = $_POST['confirm_password'] ?? '';
+        $errors = $this->session->errors ?? [];
+        $old = $this->session->old ?? [];
 
-            // Валидация данных
-            $errors = UserValidator::validateRegistration($username, $email, $password, $confirmPassword);
+        $this->session->remote('errors');
+        $this->session->remote('old');
 
-            if (!empty($errors)) {
-                foreach ($errors as $error) {
-                    echo "<p class='error'>$error</p>";
-                }
-                return;
-            }
+        $this->view->render('register', [
+            'title' => 'Register',
+            'errors' => $errors,
+            'old' => $old,
+        ]);
+    }
 
-            // Хеширование пароля перед сохранением
-            $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+    /**
+     * Обрабатывает данные для регистрации пользователя
+     * @return void
+     */
+    public function processRegister(): void
+    {
+        $data = [
+            'username' => filter_input(INPUT_POST, 'username'),
+            'email' => filter_input(INPUT_POST, 'email'),
+            'phone' => filter_input(INPUT_POST, 'phone'),
+            'password' => filter_input(INPUT_POST, 'password'),
+            'confirm_password' => filter_input(INPUT_POST, 'confirm_password'),
+        ];
 
-            // Здесь нужно добавить сохранение пользователя в базу данных
-            $this->model->createUser($username, $email, $hashedPassword);
+        $errors = UserValidators::validateRegistration($data);
 
-            echo "<p>Registration successful!</p>";
-        } else {
-            include 'views/register.php'; // Отображаем страницу регистрации
+        // Проверка уникальности имени пользователя
+        if ($this->model->getByLogin($data['username'])) {
+            $errors['username'] = 'Username already taken';
         }
+
+        // Проверка уникальности email
+        if ($this->model->getByEmail($data['email'])) {
+            $errors['email'] = 'Email already registered';
+        }
+
+        if (!empty($errors)) {
+            $this->session->errors = $errors;
+            $this->session->old = $data;
+            Route::redirect('/user/register');
+            return;
+        }
+
+        if ($this->model->create($data)) {
+            $this->session->login = $data['username'];
+            Route::redirect('/user/login');
+        } else {
+            $this->session->errors = ['register' => 'Registration failed'];
+            Route::redirect('/user/register');
+        }
+    }
+
+    /**
+     * Выполняет выход пользователя из системы
+     * @return void
+     */
+    public function logout(): void
+    {
+        $this->session->destroy();
+        Route::redirect('/user/login');
     }
 }

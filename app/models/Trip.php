@@ -8,7 +8,7 @@ class Trip extends \app\core\AbstractDB
      * Returns all records from the "trips" table.
      * @return array|null List of trips or null if no records found.
      */
-    public function getAll(): array | null
+    public function getAll()
     {
         $query = "SELECT * FROM trips";
         $result = $this->db->query($query);

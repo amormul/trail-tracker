@@ -18,7 +18,7 @@ function loadConfig(): void
         }
     }
 }
-function conf($key) : array|false|string
+function conf($key) : string
 {
     return getenv($key);
 }
@@ -32,6 +32,8 @@ spl_autoload_register(function($class){
     }
     return false;
 });
+
+
 if(conf('DEBUG') === 'true'){
     loadConfig();
     new \app\core\Route();

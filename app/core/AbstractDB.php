@@ -35,7 +35,7 @@ class AbstractDB
      * @param int $id
      * @return array|null
      */
-    public function getById(string $table, string $field, int $id): array | null
+    public function getById(string $table, string $field, int $id)
     {
         $query = "SELECT * FROM $table WHERE $field = ?;";
         $data = null;

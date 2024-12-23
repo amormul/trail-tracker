@@ -140,7 +140,6 @@
                                                 <input type="hidden" name="id" value="<?= $photo['id'] ?>">
                                                 <input type="submit" class="btn btn-primary btn-sm w-100" value="View">
                                             </form>
-
                                         </div>
                                     </div>
                                 <?php endforeach; ?>

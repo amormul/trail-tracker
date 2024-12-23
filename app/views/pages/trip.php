@@ -56,7 +56,6 @@
                             <div class="col-12 d-flex justify-content-between align-items-center">
                                 <p><strong>Inventory:</strong></p>
                                 <div class="d-flex align-items-center">
-                                    <a href="<?= app\core\Route::url('index', 'addInventory') ?>" class="btn btn-primary btn-sm mr-3">Add inventory</a>
                                     <a href="<?= app\core\Route::url('inventory') ?>" class="btn btn-primary btn-sm">All inventory</a>
                                 </div>
                             </div>
@@ -65,7 +64,10 @@
                             <div class="d-flex flex-column align-items-center">
                                 <p class="font-weight-bold text-center">No inventory items available</p>
                                 <div class="d-flex justify-content-center">
-                                    <a href="<?= app\core\Route::url('index', 'addInventory') ?>" class="btn btn-primary btn-sm">Add inventory</a>
+                                    <form action="<?= app\core\Route::url('index', 'edit') ?>" method="post">
+                                        <input type="hidden" name="trip_id" value="<?= $trip['id'] ?>">
+                                        <input type="submit" class="btn btn-primary btn-sm mr-3" value="Add inventory">
+                                    </form>
                                 </div>
                             </div>
                         <?php else: ?>

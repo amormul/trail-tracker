@@ -92,6 +92,7 @@ class IndexController extends AbstractController
         $this->validator->validatePhotoUpload($errors);
 
         if ($errors) {
+            $data['inventory'] = $inventory;
             $this->saveSessionData($data, $errors);
             Route::redirect('/index/create');
         }
@@ -131,10 +132,10 @@ class IndexController extends AbstractController
         $data = Helpers::getPostData($this->fields);
         $data['id'] = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
         $inventory = filter_input(INPUT_POST, 'inventory', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
-
         $errors = $this->validator->validate($data);
 
         if ($errors) {
+            $data['inventory'] = $inventory;
             $this->saveSessionData($data, $errors);
             Route::redirect('/index/edit');
         }
@@ -201,6 +202,15 @@ class IndexController extends AbstractController
         }
     }
 
+    public function deleteInventory(): void
+    {
+        $inventoryId = filter_input(INPUT_POST, 'inventory_id', FILTER_VALIDATE_INT);
+        $tripId = filter_input(INPUT_POST, 'trip_id', FILTER_VALIDATE_INT);
+        $this->model->deleteTripInventory($tripId, $inventoryId);
+        $this->session->trip_id = $tripId;
+        Route::redirect('/index/show');
+    }
+
     /**
      * Add a new status for trips.
      *
@@ -255,6 +265,13 @@ class IndexController extends AbstractController
         $errors = $this->session->errors ?? [];
         $old = $this->session->old ?? ($tripId ? $this->model->getById('trips', 'id', $tripId) : []);
 
+        $currentInventory = $tripId ? $this->getEnrichedInventory($this->model->getInventoryByTrip($tripId)) : [];
+        $currentInventoryIds = array_column($currentInventory, 'id');
+
+        $selectedInventory = isset($old['inventory'])
+            ? array_unique(array_merge($currentInventoryIds, $old['inventory']))
+            : $currentInventoryIds;
+
         $this->clearSessionData();
 
         $this->view->render($view, [
@@ -262,10 +279,12 @@ class IndexController extends AbstractController
             'difficulties' => $this->model->getAllDifficulties(),
             'statuses' => $this->model->getAllStatuses(),
             'inventories' => (new Inventory())->getAllInventory(),
+            'selectedInventory' => $selectedInventory,
             'old' => $old,
             'errors' => $errors
         ]);
     }
+
 
     /**
      * Handle photo upload for trips.

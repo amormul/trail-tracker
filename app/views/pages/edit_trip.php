@@ -154,7 +154,10 @@
                         name="inventory[]"
                         multiple="multiple">
                         <?php foreach ($inventories as $inventory): ?>
-                            <option value="<?= $inventory['id'] ?>" <?= (isset($old['inventory']) && in_array($inventory['id'], $old['inventory'])) ? 'selected' : '' ?>><?= $inventory['name'] ?></option>
+                            <option value="<?= $inventory['id'] ?>"
+                                <?= (isset($selectedInventory) && in_array($inventory['id'], $selectedInventory)) ? 'selected' : '' ?>>
+                                <?= $inventory['name'] ?>
+                            </option>
                         <?php endforeach; ?>
                     </select>
                 </div>

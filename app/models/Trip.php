@@ -208,15 +208,33 @@ class Trip extends \app\core\AbstractDB
     }
 
     /**
+     * Check if record of trip inventory exist
+     * @param array $tripInv An associative array containing trip and inventory IDs.
+     * @return bool
+     */
+    public function checkTripInventory(array $tripInv): bool
+    {
+        $stmt = $this->db->prepare("SELECT 1 FROM inventory_trip WHERE trip_id = ? AND inventory_id = ?");
+        $stmt->bind_param("ii", $tripInv['trip_id'], $tripInv['inventory_id']);
+        $stmt->execute();
+        $stmt->store_result();
+
+        return $stmt->num_rows > 0;
+    }
+
+    /**
      * Associates an inventory item with a trip.
      * @param array $tripInv An associative array containing trip and inventory IDs.
      * @return bool True if the association was created successfully, false otherwise.
      */
     function createTripInventory(array $tripInv): bool
     {
+        if ($this->checkTripInventory($tripInv)) {
+            return false;
+        }
+
         $stmt = $this->db->prepare("INSERT INTO inventory_trip (trip_id, inventory_id) VALUES (?, ?)");
         $stmt->bind_param("ii", $tripInv['trip_id'], $tripInv['inventory_id']);
-
         return $stmt->execute();
     }
 

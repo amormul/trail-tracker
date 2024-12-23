@@ -122,7 +122,7 @@
 
                         <!-- Photo Gallery Section -->
                         <p class="mt-4"><strong>Photo Gallery:</strong></p>
-                        <div class="d-flex flex-column align-items-center">
+                        <div class="d-flex flex-column align-items-center mb-4">
                             <form action="<?= app\core\Route::url('gallery', 'addPhoto') ?>" method="post">
                                 <input type="hidden" name="trip_id" value="<?= $trip['id'] ?>">
                                 <input type="submit" class="btn btn-primary btn-sm" value="Add photo">
@@ -136,10 +136,11 @@
                                     <div class="col-6 col-md-3 mb-4">
                                         <img src="<?= $photo['photo'] ?>" class="img-thumbnail" alt="Photo" />
                                         <div class="text-center mt-1">
-                                            <form action="<?= app\core\Route::url('index', 'show') ?>" method="post">
+                                            <form action="<?= app\core\Route::url('gallery', 'viewPhoto') ?>" method="post">
                                                 <input type="hidden" name="id" value="<?= $photo['id'] ?>">
                                                 <input type="submit" class="btn btn-primary btn-sm w-100" value="View">
                                             </form>
+
                                         </div>
                                     </div>
                                 <?php endforeach; ?>

@@ -22,6 +22,31 @@ class Gallery extends AbstractDB
     }
 
     /**
+     * @param int $photoId
+     * @return array|null
+     */
+    public function getPhotoById(int $photoId): ?array
+    {
+        $query = "SELECT g.id, g.photo, g.trip_id, g.comment, u.login AS author 
+        FROM gallery g LEFT JOIN users u ON g.user_id = u.id
+        WHERE g.id = ? AND g.deleted_at IS NULL";
+        $stmt = $this->db->prepare($query);
+        $stmt->bind_param("i", $photoId);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        return $result->fetch_assoc();
+    }
+
+    public function edit(int $photoId, string $photoPath, string $comment): bool
+    {
+        $query = "UPDATE gallery SET photo = ?, comment = ? 
+        WHERE id = ? AND deleted_at IS NULL";
+        $stmt = $this->db->prepare($query);
+        $stmt->bind_param("ssi", $photoPath, $comment, $photoId);
+        return $stmt->execute();
+    }
+
+    /**
      * add new photo
      * @param int $userId
      * @param string $photo
@@ -33,10 +58,7 @@ class Gallery extends AbstractDB
     {
         $query = "INSERT INTO gallery (user_id, photo, trip_id, comment) VALUES (?, ?, ?, ?)";
         $stmt = $this->db->prepare($query);
-        if ($stmt) {
-            $stmt->bind_param("isis", $userId, $photo, $tripId, $comment);
-            return $stmt->execute();
-        }
-        return false;
+        $stmt->bind_param("isis", $userId, $photo, $tripId, $comment);
+        return $stmt->execute();
     }
 }

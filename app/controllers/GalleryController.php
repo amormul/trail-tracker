@@ -1,6 +1,3 @@
 <?php
 
-class GalleryController
-{
-
-}
+class GalleryController extends \app\core\AbstractController {}

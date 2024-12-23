@@ -104,14 +104,14 @@
                             <?php endif; ?>
                         </div>
                         <div class="col-md-6">
-                            <label for="customStatus">Enter your own status:</label>
-                            <input
-                                type="text"
-                                class="form-control"
-                                id="customStatus"
-                                name="status"
-                                value="<?= htmlspecialchars($old['status'] ?? '') ?>"
-                                placeholder="Enter status..." />
+                            <label for="customStatus">Add your own status:</label>
+                            <button
+                                type="button"
+                                class="btn btn-primary btn-block"
+                                data-toggle="modal"
+                                data-target="#statusModal">
+                                Add status
+                            </button>
                         </div>
                     </div>
 
@@ -176,57 +176,5 @@
 
 
 <!-- Difficulty Modal -->
-<div
-    class="modal fade"
-    id="difficultyModal"
-    tabindex="-1"
-    aria-labelledby="difficultyModalLabel"
-    aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="difficultyModalLabel">
-                    Add difficulty
-                </h5>
-                <button
-                    type="button"
-                    class="close"
-                    data-dismiss="modal"
-                    aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <form action="#" method="post">
-                <div class="modal-body">
-                    <div class="form-group">
-                        <label for="modalDifficultyName">Difficulty name:</label>
-                        <input
-                            type="text"
-                            class="form-control"
-                            id="modalDifficultyName"
-                            name="name"
-                            placeholder="Enter difficulty name..." />
-                    </div>
-                    <div class="form-group">
-                        <label for="modalDifficultyDescription">Description:</label>
-                        <textarea
-                            class="form-control"
-                            id="modalDifficultyDescription"
-                            name="description"
-                            rows="3"
-                            placeholder="Enter description..."></textarea>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button
-                        type="button"
-                        class="btn btn-secondary"
-                        data-dismiss="modal">
-                        Close
-                    </button>
-                    <button type="submit" class="btn btn-primary">Submit</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
+<?php include_once self::VIEWS_DIR . 'modals' . DIRECTORY_SEPARATOR . 'add_difficulty.php' ?>
+<?php include_once self::VIEWS_DIR . 'modals' . DIRECTORY_SEPARATOR . 'add_status.php' ?>

@@ -57,6 +57,7 @@ class IndexController extends AbstractController
     public function show(): void
     {
         $tripId = $this->getTripIdFromRequest();
+        $this->session->remote('trip_id');
         $trip = $this->getEnrichedTrip($tripId);
 
         $this->view->render('trip', [
@@ -115,7 +116,9 @@ class IndexController extends AbstractController
      */
     public function edit(): void
     {
-        $this->renderForm('edit_trip', 'Edit trip', $this->getTripIdFromRequest());
+        $tripId =  $this->getTripIdFromRequest();
+        $this->session->trip_id = $tripId;
+        $this->renderForm('edit_trip', 'Edit trip', $tripId);
     }
 
     /**
@@ -196,6 +199,37 @@ class IndexController extends AbstractController
                 'inventory_id' => $inventoryId
             ]);
         }
+    }
+
+    /**
+     * Add a new status for trips.
+     *
+     * @return void
+     */
+    public function addStatus(): void
+    {
+        $data['name'] = filter_input(INPUT_POST, 'name', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+        if (!$this->model->createStatus($data)) {
+            throw new RuntimeException('Status not created');
+        }
+
+        Route::redirect($_SERVER['HTTP_REFERER']);
+    }
+
+    /**
+     * Add a new difficulty for trips.
+     *
+     * @return void
+     */
+    public function addDifficulty(): void
+    {
+        $data['name'] = filter_input(INPUT_POST, 'name', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+        $data['description'] = filter_input(INPUT_POST, 'description', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+        if (!$this->model->createDifficult($data)) {
+            throw new RuntimeException('Difficulty not created');
+        }
+
+        Route::redirect($_SERVER['HTTP_REFERER']);
     }
 
     /**

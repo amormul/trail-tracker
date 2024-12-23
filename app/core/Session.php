@@ -22,11 +22,7 @@ class Session
      * @param mixed $data
      * @return void
      */
-<<<<<<< HEAD
     public function __set(string $key, mixed $data): void
-=======
-    public function __set(string $key, $data): void
->>>>>>> danylenko-dev
     {
         $_SESSION[$key] = $data;
     }
@@ -36,11 +32,7 @@ class Session
      * @param string $key
      * @return mixed
      */
-<<<<<<< HEAD
     public function __get(string $key): mixed
-=======
-    public function __get(string $key)
->>>>>>> danylenko-dev
     {
         return $_SESSION[$key] ?? null;
     }
@@ -65,8 +57,4 @@ class Session
     {
         session_destroy();
     }
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> danylenko-dev

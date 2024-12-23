@@ -17,7 +17,7 @@ class IndexController extends AbstractController
     protected Session $session;
     protected TripValidator $validator;
 
-    private string $fileDir = 'storage' . DIRECTORY_SEPARATOR . 'imageTrip' . DIRECTORY_SEPARATOR;
+    private string $fileDir = 'storage' . DIRECTORY_SEPARATOR . 'imageTrip';
     private array $fields = [
         'name' => FILTER_SANITIZE_FULL_SPECIAL_CHARS,
         'description' => FILTER_SANITIZE_FULL_SPECIAL_CHARS,
@@ -57,7 +57,6 @@ class IndexController extends AbstractController
     public function show(): void
     {
         $tripId = $this->getTripIdFromRequest();
-        $this->session->remote('trip_id');
         $trip = $this->getEnrichedTrip($tripId);
 
         $this->view->render('trip', [
@@ -98,7 +97,7 @@ class IndexController extends AbstractController
         }
 
         $data['photo'] = Helpers::savePhoto($this->fileDir, $_FILES['photo']);
-        $data['user_id'] = 1;
+        $data['user_id'] = $this->getCurrentUserId();
         $tripId = $this->model->create($data);
 
         if (!$tripId) {
@@ -141,7 +140,6 @@ class IndexController extends AbstractController
         }
 
         $data['photo'] = $this->processPhotoUpload($data);
-        $data['user_id'] = 1;
 
         $this->model->update($data);
         $this->storeTripInventory($data['id'], $inventory);
@@ -158,10 +156,12 @@ class IndexController extends AbstractController
     public function delete(): void
     {
         $tripId = $this->getTripIdFromRequest();
+        $oldPhoto = $this->model->getById('trips', 'id', $tripId)['photo'];
 
         if (!$this->model->delete($tripId)) {
             throw new RuntimeException('Failed to delete trip.');
         }
+        Helpers::deletePhoto($oldPhoto);
 
         Route::redirect('/index/index');
     }
@@ -175,9 +175,9 @@ class IndexController extends AbstractController
     {
         $tripId = $this->getTripIdFromRequest();
         if ($tripId) {
-            $this->model->checkLike($tripId, 1)
-                ? $this->model->addLike($tripId, 1)
-                : $this->model->deleteLike($tripId, 1);
+            $this->model->checkLike($tripId, $this->getCurrentUserId())
+                ? $this->model->addLike($tripId, $this->getCurrentUserId())
+                : $this->model->deleteLike($tripId, $this->getCurrentUserId());
         }
 
         $this->session->trip_id = $tripId;
@@ -318,6 +318,7 @@ class IndexController extends AbstractController
             $trip['status'] = $this->model->getStatusById($trip['status_id'])['name'];
             $trip['difficulty'] = $this->model->getDifficultyById($trip['difficulty_id'])['name'];
             $trip['likes'] = $this->model->countLikes($trip['id']);
+            $trip['user'] = $this->model->getById('users', 'id', $trip['user_id'])['login'];
             return $trip;
         }, $trips);
     }

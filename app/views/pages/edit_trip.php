@@ -162,7 +162,7 @@
                     </select>
                 </div>
                 <div class="col-md-3 d-flex align-items-end">
-                    <a href="#" class="btn btn-primary btn-block">Add new inventory</a>
+                    <a href="<?= app\core\Route::url('inventory', 'create') ?>" class="btn btn-primary btn-block">Add new inventory</a>
                 </div>
             </div>
             <!-- Submit Button -->

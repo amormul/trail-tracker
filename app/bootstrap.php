@@ -18,7 +18,7 @@ function loadConfig(): void
         }
     }
 }
-function conf($key): array|false|string
+function conf($key): string
 {
     return getenv($key);
 }

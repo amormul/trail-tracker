@@ -8,7 +8,7 @@ class Trip extends \app\core\AbstractDB
      * Returns all records from the "trips" table.
      * @return array|null List of trips or null if no records found.
      */
-    public function getAll(): array | null
+    public function getAll()
     {
         $query = "SELECT * FROM trips";
         $result = $this->db->query($query);
@@ -42,8 +42,8 @@ class Trip extends \app\core\AbstractDB
      */
     public function update(array $trip): bool
     {
-        $stmt = $this->db->prepare("UPDATE trips SET name = ?, user_id = ?, difficulty_id = ?, start_date = ?, end_date = ?, status_id = ?, photo = ?, description = ? WHERE id = ?");
-        $stmt->bind_param("siississi", $trip['name'], $trip['user_id'], $trip['difficulty_id'], $trip['start_date'], $trip['end_date'], $trip['status_id'], $trip['photo'], $trip['description'], $trip['id']);
+        $stmt = $this->db->prepare("UPDATE trips SET name = ?, difficulty_id = ?, start_date = ?, end_date = ?, status_id = ?, photo = ?, description = ? WHERE id = ?");
+        $stmt->bind_param("sississi", $trip['name'], $trip['difficulty_id'], $trip['start_date'], $trip['end_date'], $trip['status_id'], $trip['photo'], $trip['description'], $trip['id']);
         return $stmt->execute();
     }
 

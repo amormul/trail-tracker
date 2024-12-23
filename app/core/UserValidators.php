@@ -2,47 +2,72 @@
 
 namespace app\core;
 
-class UserValidator
+class UserValidators
 {
-    // Валидация для регистрации
-    public static function validateRegistration(string $username, string $email, string $password, string $confirmPassword): array
+    /**
+     * Валидирует данные формы входа.
+     * @param array $data Данные из формы входа.
+     * @return array Список ошибок валидации.
+     */
+    public static function validateLogin(array $data): array
     {
         $errors = [];
 
-        if (empty($username)) {
-            $errors[] = 'Username is required.';
+        // Проверка наличия имени пользователя
+        if (empty($data['username'])) {
+            $errors['username'] = 'Имя пользователя обязательно для заполнения';
         }
 
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $errors[] = 'Invalid email format.';
-        }
-
-        if (empty($password)) {
-            $errors[] = 'Password is required.';
-        }
-
-        if (strlen($password) < 6) {
-            $errors[] = 'Password must be at least 6 characters.';
-        }
-
-        if ($password !== $confirmPassword) {
-            $errors[] = 'Passwords do not match.';
+        // Проверка наличия пароля
+        if (empty($data['password'])) {
+            $errors['password'] = 'Пароль обязателен для заполнения';
         }
 
         return $errors;
     }
 
-    // Валидация для входа
-    public static function validateLogin(string $username, string $password): array
+    /**
+     * Валидирует данные формы регистрации.
+     * @param array $data Данные из формы регистрации.
+     * @return array Список ошибок валидации.
+     */
+    public static function validateRegistration(array $data): array
     {
         $errors = [];
 
-        if (empty($username)) {
-            $errors[] = 'Username is required.';
+        // Валидация имени пользователя
+        if (empty($data['username'])) {
+            $errors['username'] = 'Имя пользователя обязательно для заполнения';
+        } elseif (strlen($data['username']) < 3) {
+            $errors['username'] = 'Имя пользователя должно быть не менее 3 символов';
         }
 
-        if (empty($password)) {
-            $errors[] = 'Password is required.';
+        // Валидация email
+        if (empty($data['email'])) {
+            $errors['email'] = 'Email обязателен для заполнения';
+        } elseif (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
+            $errors['email'] = 'Неверный формат email';
+        }
+
+        // Валидация телефона (опционально)
+        if (!empty($data['phone'])) {
+            if (!preg_match('/^[0-9+\-\s()]{10,15}$/', $data['phone'])) {
+                $errors['phone'] = 'Неверный формат телефона';
+            }
+        }
+
+        // Валидация пароля
+        if (empty($data['password'])) {
+            $errors['password'] = 'Пароль обязателен для заполнения';
+        } elseif (strlen($data['password']) < 6) {
+            $errors['password'] = 'Пароль должен быть не менее 6 символов';
+        }
+
+        // Валидация подтверждения пароля
+        if (empty($data['confirm_password'])) {
+            $errors['confirm_password'] = 'Необходимо подтвердить пароль';
+        } elseif ($data['password'] !== $data['confirm_password']) {
+            $errors['confirm_password'] = 'Пароли не совпадают';
         }
 
         return $errors;

@@ -71,8 +71,9 @@ class InventoryController extends AbstractController
      * @param int $id
      * @return void
      */
-    public function edit(int $id): void
+    public function edit(): void
     {
+        $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
         $inventory = $this->model->getById('inventory', 'id', $id);
         $this->view->render('update_inventory', [
             'title' => 'Edit Inventory Item',
@@ -86,7 +87,28 @@ class InventoryController extends AbstractController
      */
     public function update(): void
     {
-        //TODO
+        $id = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
+        $name = filter_input(INPUT_POST, 'name');
+        $description = filter_input(INPUT_POST, 'description');
+        $photo = $_FILES['photo'] ?? null;
+        if ($id && $name && $description) {
+            $data = [
+                'id' => $id,
+                'name' => $name,
+                'description' => $description
+            ];
+            if ($photo && $photo['error'] === UPLOAD_ERR_OK) {
+                $data['photo'] = $this->savePhoto($photo);
+            } else {
+            $existing = $this->model->getById('inventory', 'id', $id);
+            $data['photo'] = $existing['photo'] ?? null;
+        }
+            if ($this->model->update($data)) {
+                Route::redirect('/inventory');
+                return;
+            }
+        }
+        Route::redirect('/inventory/edit/?id=' . ($id ?? ''));
     }
 
 

@@ -16,7 +16,7 @@
                                 <h5 class="card-title"><?= $inventory['name'] ?></h5>
                                 <p class="card-text"><?= $inventory['description'] ?></p>
                                 <div class="mt-auto d-flex justify-content-end">
-                                    <a href="/inventory/edit/<?= $inventory['id'] ?>" class="btn btn-primary btn-sm mr-2">Update</a>
+                                    <a href="<?= \app\core\Route::url('inventory', 'edit')?>/?id=<?= $inventory['id'] ?>" class="btn btn-primary btn-sm mr-2">Update</a>
                                     <form action="/inventory/delete" method="POST" style="display:inline;">
                                         <input type="hidden" name="id" value="<?= $inventory['id'] ?>">
                                         <button type="submit" class="btn btn-danger btn-sm" >Delete</button>

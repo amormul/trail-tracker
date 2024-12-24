@@ -125,7 +125,7 @@
                         <!-- Photo Gallery Section -->
                         <p class="mt-4"><strong>Photo Gallery:</strong></p>
                         <div class="d-flex flex-column align-items-center mb-4">
-                            <form action="<?= app\core\Route::url('gallery', 'addPhoto') ?>" method="post">
+                            <form action="<?= app\core\Route::url('gallery', 'addPhoto') ?>" method="get">
                                 <input type="hidden" name="trip_id" value="<?= $trip['id'] ?>">
                                 <input type="submit" class="btn btn-primary btn-sm" value="Add photo">
                             </form>

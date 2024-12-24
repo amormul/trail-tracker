@@ -10,6 +10,7 @@ use app\models\Inventory;
 use app\models\Trip;
 use RuntimeException;
 use app\core\TripValidator;
+use app\models\Gallery;
 
 class IndexController extends AbstractController
 {
@@ -58,12 +59,15 @@ class IndexController extends AbstractController
     {
         $tripId = $this->getTripIdFromRequest();
         $trip = $this->getEnrichedTrip($tripId);
+        $gallery = new Gallery();
+        $photos = $gallery->getPhotosByTripId($tripId);
 
         $this->view->render('trip', [
             'title' => 'Trip page',
             'trip' => $trip,
             'route' => $this->model->getById('routes', 'trip_id', $trip['id']),
-            'inventories' => $this->getEnrichedInventory($this->model->getInventoryByTrip($tripId))
+            'inventories' => $this->getEnrichedInventory($this->model->getInventoryByTrip($tripId)),
+            'photos' => $photos
         ]);
     }
 
@@ -250,7 +254,9 @@ class IndexController extends AbstractController
      */
     private function getTripIdFromRequest(): ?int
     {
-        return filter_input(INPUT_POST, 'trip_id', FILTER_VALIDATE_INT) ?? $this->session->trip_id;
+        return filter_input(INPUT_POST, 'trip_id', FILTER_VALIDATE_INT)
+            ?? filter_input(INPUT_GET, 'trip_id', FILTER_VALIDATE_INT)
+            ?? $this->session->trip_id;
     }
 
     /**

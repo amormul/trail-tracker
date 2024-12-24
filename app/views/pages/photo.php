@@ -1,6 +1,6 @@
 <div class="container mt-5 pt-4 mb-5">
     <div class="d-flex mb-3">
-        <a href="/index/show?id=<?= $photo['trip_id'] ?>" class="btn btn-primary text-white btn-sm mr-2">Back</a>
+        <a href="#" class="btn btn-primary text-white btn-sm mr-2">Back</a>
         <form action="<?= app\core\Route::url('gallery', 'editPhoto') ?>" method="post">
             <input type="hidden" name="id" value="<?= $photo['id'] ?>">
             <input type="submit" class="btn btn-warning text-black btn-sm mr-2" value="Edit">

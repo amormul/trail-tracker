@@ -64,7 +64,7 @@ class GalleryController extends AbstractController
      */
     public function viewPhoto(): void
     {
-        $photoId = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT) ?? $this->session->photo_id;
+        $photoId = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT) ?? $this->session->photo_id;
         $photo = $this->gallery->getPhotoById($photoId);
         $this->session->photo_id = $photoId;
         $photo['likes'] = $this->gallery->countLikes($photoId);
@@ -100,7 +100,7 @@ class GalleryController extends AbstractController
      */
     public function editPhoto(): void
     {
-        $photoId = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
+        $photoId = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
         $photo = $this->gallery->getPhotoById($photoId);
         $this->view->render('edit_photo', [
             'title' => 'Edit Photo',

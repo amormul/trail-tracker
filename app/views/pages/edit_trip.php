@@ -144,6 +144,18 @@
                     </div>
                 </div>
             </div>
+            <!-- Route Section -->
+            <p class="mt-4"><strong>Route:</strong></p>
+            <div class="d-flex flex-column align-items-center">
+                <a href="<?= app\core\Route::url('route', 'edit_route?trip_id='.$old['id']) ?>"
+                             class="btn btn-primary"> Edit route</a>
+            </div>
+
+            <p class="text-center font-weight-bold">Route: <?php if (!empty($route)): ?> <?= $route['description'] ?> <?php endif;?></p>
+            <div class="travel-map text-center">
+                <img src="<?php if (!empty($route)): ?><?= $route['photo'] ?> <?php endif;?>"
+                     alt="<?php if (!empty($route)): ?><?= $route['photo'] ?><?php endif;?>" class="img-fluid rounded">
+            </div>
             <!-- Inventory Section -->
             <div class="form-row">
                 <div class="col-md-9">

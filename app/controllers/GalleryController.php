@@ -46,8 +46,7 @@ class GalleryController extends AbstractController
             mkdir($uploadDir, 0777, true);
         }
         $file = $_FILES['file'];
-        $fileExtension = pathinfo($file['name'], PATHINFO_EXTENSION);
-        $newFileName = uniqid('photo_', true) . '.' . $fileExtension;
+        $newFileName = 'photo_' . uniqid() . '.' . pathinfo($file['name'], PATHINFO_EXTENSION);
         $filePath = $uploadDir . $newFileName;
         if (!move_uploaded_file($file['tmp_name'], $filePath)) {
             $this->view->render('error', ['message' => 'File upload failed.']);

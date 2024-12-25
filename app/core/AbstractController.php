@@ -10,11 +10,13 @@ abstract class AbstractController
     public View $view;
     protected Session $session;
     protected $models = [];
+    protected $login;
 
     public function __construct()
     {
         $this->view = new View();
         $this->session = new Session();
+        $this->login = $this->session->login ?? null;
     }
 
     /**

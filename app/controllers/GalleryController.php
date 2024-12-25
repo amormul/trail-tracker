@@ -26,29 +26,21 @@ class GalleryController extends AbstractController
     public function addPhoto(): void
     {
         $tripId = filter_input(INPUT_GET, 'trip_id', FILTER_VALIDATE_INT);
-        if (!$tripId) {
-            $this->view->render('error', ['message' => 'Trip ID is required.']);
-            return;
-        }
         $this->view->render('add_photo', [
             'title' => 'Add New Photo',
             'tripId' => $tripId
         ]);
     }
 
+    /**
+     * saves photo in DB
+     * @return void
+     */
     public function savePhoto(): void
     {
         $userId = $this->getCurrentUserId();
-        if (!$userId) {
-            $this->view->render('error', ['message' => 'User not authenticated.']);
-            return;
-        }
         $tripId = filter_input(INPUT_POST, 'trip_id', FILTER_VALIDATE_INT);
-        $comment = filter_input(INPUT_POST, 'comment', FILTER_SANITIZE_STRING);
-        if (!$tripId || !isset($_FILES['file'])) {
-            $this->view->render('error', ['message' => 'Invalid input data.']);
-            return;
-        }
+        $comment = filter_input(INPUT_POST, 'comment');
         $uploadDir = $_SERVER['DOCUMENT_ROOT'] . '/storage/imageGallery/';
         if (!is_dir($uploadDir)) {
             mkdir($uploadDir, 0777, true);
@@ -66,26 +58,89 @@ class GalleryController extends AbstractController
         Route::redirect('/index/show?trip_id=' . $tripId);
     }
 
+    /**
+     * shows photo.php
+     * @return void
+     */
     public function viewPhoto(): void
     {
         $photoId = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT) ?? $this->session->photo_id;
-        if (!$photoId) {
-            $this->view->render('error', ['message' => 'Invalid photo ID.']);
-            return;
-        }
         $photo = $this->gallery->getPhotoById($photoId);
-        if (!$photo) {
-            $this->view->render('error', ['message' => 'Photo not found.']);
-            return;
-        }
         $this->session->photo_id = $photoId;
         $photo['likes'] = $this->gallery->countLikes($photoId);
+        $tripId = $photo['trip_id'];
+        $isOwner = $photo['user_id'] === $this->getCurrentUserId();
         $this->view->render('photo', [
             'title' => 'View Photo',
+            'photo' => $photo,
+            'tripId' => $tripId,
+            'isOwner' => $isOwner
+        ]);
+    }
+
+    /**
+     * "deletes" photo from gallery
+     * @return void
+     */
+    public function deletePhoto(): void
+    {
+        $photoId = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
+        $tripId = filter_input(INPUT_POST, 'trip_id', FILTER_VALIDATE_INT);
+        $photo = $this->gallery->getPhotoById($photoId);
+        if (!$tripId) {
+            $tripId = $photo['trip_id'];
+        }
+        $this->gallery->delete($photoId);
+        Route::redirect('/index/show?trip_id=' . $tripId);
+    }
+
+    /**
+     * shows edit_photo page
+     * @return void
+     */
+    public function editPhoto(): void
+    {
+        $photoId = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
+        $photo = $this->gallery->getPhotoById($photoId);
+        $this->view->render('edit_photo', [
+            'title' => 'Edit Photo',
             'photo' => $photo
         ]);
     }
 
+    /**
+     * updates photo in DB
+     * @return void
+     */
+    public function update(): void
+    {
+        $photoId = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
+        $comment = filter_input(INPUT_POST, 'comment');
+        $photo = $this->gallery->getPhotoById($photoId);
+        $file = $_FILES['file'] ?? null;
+        $photoPath = $photo['photo'];
+        if ($file && $file['error'] === UPLOAD_ERR_OK) {
+            $uploadDir = $_SERVER['DOCUMENT_ROOT'] . '/storage/imageGallery/';
+            $newFileName = 'photo_' . uniqid() . '.' . pathinfo($file['name'], PATHINFO_EXTENSION);
+            $uploadFile = $uploadDir . $newFileName;
+            if ($photoPath && file_exists($_SERVER['DOCUMENT_ROOT'] . $photoPath)) {
+                unlink($_SERVER['DOCUMENT_ROOT'] . $photoPath);
+            }
+            if (move_uploaded_file($file['tmp_name'], $uploadFile)) {
+                $photoPath = '/storage/imageGallery/' . $newFileName;
+            } else {
+                $this->view->render('error', ['message' => 'Failed to upload new photo.']);
+                return;
+            }
+        }
+        $this->gallery->edit($photoId, $photoPath, $comment);
+        Route::redirect('/gallery/viewPhoto?id=' . $photoId);
+    }
+
+    /**
+     * counts, adds and deletes likes from photo
+     * @return void
+     */
     public function like(): void
     {
         $photoId = filter_input(INPUT_POST, 'photo_id', FILTER_VALIDATE_INT);

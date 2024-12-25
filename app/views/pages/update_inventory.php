@@ -10,7 +10,7 @@
                          style="width: 200px; height: 230px; position: relative; cursor: pointer;"
                          onclick="document.getElementById('itemPhoto').click();">
                         <?php if (!empty($inventory['photo'])): ?>
-                            <img src="/storage/imageInventar/<?= $inventory['photo'] ?>"
+                            <img src="/<?= $inventory['photo'] ?>"
                                  alt="Item Photo" style="width: 100%; height: 100%; object-fit: cover;">
                         <?php else: ?>
                             <span class="text-secondary font-weight-bold" style="font-size: 48px;">+</span>

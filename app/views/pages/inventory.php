@@ -11,11 +11,12 @@
                 <?php foreach ($inventories as $inventory): ?>
                     <div class="col-md-4 mb-4">
                         <div class="card h-100">
-                            <img src="<?= $inventory['photo'] ? $inventory['photo'] : 'https://via.placeholder.com/300x200' ?>" class="card-img-top" alt="<?= $inventory['name'] ?>">
+                            <img src="<?= $inventory['photo'] ? '/' . $inventory['photo'] : 'https://via.placeholder.com/300x200' ?>" class="card-img-top" alt="<?= $inventory['name'] ?>">
                             <div class="card-body d-flex flex-column">
                                 <h5 class="card-title"><?= $inventory['name'] ?></h5>
                                 <p class="card-text"><?= $inventory['description'] ?></p>
                                 <div class="mt-auto d-flex justify-content-end">
+                                    <a href="<?= \app\core\Route::url('inventory', 'show') ?>/?id=<?= $inventory['id'] ?>" class="btn btn-success btn-sm mr-2">Read</a>
                                     <a href="<?= \app\core\Route::url('inventory', 'edit')?>/?id=<?= $inventory['id'] ?>" class="btn btn-primary btn-sm mr-2">Update</a>
                                     <form action="/inventory/delete" method="POST" style="display:inline;">
                                         <input type="hidden" name="id" value="<?= $inventory['id'] ?>">

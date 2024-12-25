@@ -5,16 +5,21 @@ use app\core\AbstractController;
 use app\core\Route;
 use app\core\Session;
 use app\models\Inventory;
+
 class InventoryController extends AbstractController
 {
     protected Inventory $model;
     protected Session $session;
+    protected Validator $validator;
+
     public function __construct()
     {
         parent::__construct();
         $this->session = new Session();
         $this->model = new Inventory();
+        $this->validator = new Validator();
     }
+
 
     /**
      * Renders the inventory list page
@@ -123,8 +128,6 @@ class InventoryController extends AbstractController
         if ((int)$id == 0) {
             exit('error 404');
         }
-        //TODO: validate
-
         $this->model->delete($id);
         Route::redirect('/inventory');
     }
@@ -137,17 +140,40 @@ class InventoryController extends AbstractController
     private function savePhoto(array $photo): ?string
     {
         $uploadDir = 'storage/imageInventory/';
-        $uploadFile = $uploadDir . basename($photo['name']);
-        //TODO: if file not exist
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0755, true);
+        }
+        $fileName = uniqid() . '_' . basename($photo['name']);
+        $uploadFile = $uploadDir . $fileName;
         if (move_uploaded_file($photo['tmp_name'], $uploadFile)) {
             return $uploadFile;
         }
         return null;
     }
 
-    private function show()
+    /**
+     * Displays the details of a specific inventory item.
+     * @return void
+     */
+    public function show(): void
     {
-        //TODO
-    }
+        $inventory_id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
 
+        if (!$inventory_id) {
+            Route::redirect('/inventory');
+            return;
+        }
+
+        $inventory = $this->model->getById('inventory', 'id', $inventory_id);
+
+        if (!$inventory) {
+            Route::redirect('/inventory');
+            return;
+        }
+
+        $this->view->render('show_page', [
+            'title' => 'Inventory Details',
+            'inventory' => $inventory
+        ]);
+    }
 }

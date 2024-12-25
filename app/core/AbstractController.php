@@ -17,6 +17,11 @@ abstract class AbstractController
         $this->session = new Session();
     }
 
+    /**
+     * @param string $name
+     * @return void
+     * @throws \Exception
+     */
     protected function loadModel(string $name) : void
     {
         $modelClass = 'app\models\\' . ucfirst($name);
@@ -25,6 +30,7 @@ abstract class AbstractController
         }
         $this->models[$name] = new $modelClass;
     }
+
     public function __get(string $name)
     {
         $params = explode('_', $name);
@@ -34,13 +40,16 @@ abstract class AbstractController
         }
         return null;
     }
-    protected function get_model(string $name)
+
+    /**
+     * @param string $name
+     * @return object|null
+     */
+    protected function get_model(string $name) : ?object
     {
         if(isset($this->models[$name])) {
             return $this->models[$name];
         }
         return null;
     }
-
-
 }

@@ -118,7 +118,7 @@
                         <?php else: ?>
                             <p class="text-center font-weight-bold">Route: <?= $route['description'] ?></p>
                             <div class="travel-map text-center">
-                                    <img src="<?= $route['photo'] ?>" alt="<?= $route['photo'] ?>" class="img-fluid rounded">
+                                    <img src="<?= $route['photo'] ?>" alt="<?= $route['photo'] ?>" class="img-fluid max-height=50%">
                             </div>
                             <!-- Likes -->
                             <div class="d-flex justify-content-between mt-2">

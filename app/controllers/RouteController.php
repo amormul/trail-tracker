@@ -100,6 +100,9 @@ class RouteController extends \app\core\AbstractController
     {
         $trip_id = filter_input(INPUT_GET, 'trip_id',FILTER_VALIDATE_INT);
         $route = $this->model_route->getByTripId($trip_id);
+        if (empty($route)) {
+            $route['trip_id'] = $trip_id;
+        }
         $exist_photo = true;
         if (empty($route['photo'])) {
             $route['photo'] = "/images/add.png";
@@ -130,7 +133,12 @@ class RouteController extends \app\core\AbstractController
                 \app\core\Route::redirect('/route/edit_route');
             } else {
                 try {
-                    $this->model_route->update($data);
+                    $route = $this->model_route->getByTripId($data['trip_id']);
+                    if (empty($route)) {
+                        $this->model_route->create($data);
+                    }else {
+                        $this->model_route->update($data);
+                    }
                 } catch (Exception $e) {
                     $this->outputException($e->getMessage());
                 }

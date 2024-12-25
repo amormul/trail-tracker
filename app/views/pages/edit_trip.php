@@ -154,7 +154,7 @@
             <p class="text-center font-weight-bold">Route: <?php if (!empty($route)): ?> <?= $route['description'] ?> <?php endif;?></p>
             <div class="travel-map text-center">
                 <img src="<?php if (!empty($route)): ?><?= $route['photo'] ?> <?php endif;?>"
-                     alt="<?php if (!empty($route)): ?><?= $route['photo'] ?><?php endif;?>" class="img-fluid rounded">
+                     alt="<?php if (!empty($route)): ?><?= $route['photo'] ?><?php endif;?>" class="img-fluid max-height=80% weight=auto">
             </div>
             <!-- Inventory Section -->
             <div class="form-row">

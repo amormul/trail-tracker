@@ -14,12 +14,14 @@
                     <!-- Travel Path Photo -->
                     <label for="travelPathPhoto" class="d-block mt-2">Route map:</label>
                     <div class="photo-section mb-2 text-center border border-secondary rounded p-3">
-                        <input type="hidden" name="current_photo" id="travelCurrentPhoto" value="<?=$route['photo']?>">
+                        <input type="hidden" name="current_photo" id="travelCurrentPhoto"
+                               value="<?php if(!empty($route['photo'])):?><?=$route['photo']?><?php endif;?>">
                         <label for="travelPathPhoto" class="d-flex justify-content-center align-items-center photo-label">
                             <div id="travelPathPreview">
                                 <span class="d-block text-center mb-2">
-                                    <img src="<?=$route['photo']?>" alt="Add" class="img-fluid max-width: 100%;" />
-                                </span>
+                                    <img src="<?php if(!empty($route['photo'])):?><?=$route['photo']?><?php endif;?>"
+                                         alt="<?php if(!empty($route['photo'])):?><?=$route['photo']?><?php endif;?>"
+                                         class="img-fluid max-width: 100%;" /> </span>
                             </div>
                         </label>
                         <input type="file" id="travelPathPhoto" name="route_photo" class="d-none" accept="image/*" />
@@ -40,7 +42,7 @@
                             id="routeDescription"
                             name="route_description"
                             rows="5"
-                            required><?=$route['description']?></textarea>
+                            required><?php if(!empty($route['description'])):?><?=$route['description']?><?php endif;?></textarea>
                     </div>
                 </div>
             </div>

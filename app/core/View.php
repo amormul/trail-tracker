@@ -1,6 +1,7 @@
 <?php
 
 namespace app\core;
+
 class View
 {
     const VIEWS_DIR = '..' . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR;
@@ -9,7 +10,7 @@ class View
 
     public function __construct(string $template = null)
     {
-        if($template){
+        if ($template) {
             $this->template = $template;
         }
     }
@@ -20,7 +21,7 @@ class View
      * @param array $data
      * @return void
      */
-    public function render(string $page,array $data) : void
+    public function render(string $page, array $data): void
     {
         extract($data);
         include_once self::VIEWS_DIR . 'templates' . DIRECTORY_SEPARATOR . $this->template . '.php';

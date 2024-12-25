@@ -76,7 +76,6 @@ class Route
         http_response_code(404);
         exit();
     }
-
     /**
      * Create url for controller and action
      * @param string $controller

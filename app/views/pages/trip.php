@@ -22,9 +22,15 @@
                     <!-- Buttons Split Across the Row -->
                     <div class="d-flex justify-content-between mb-3">
                         <a href="<?= \app\core\Route::url() ?>" class="btn btn-primary btn-sm">Back</a>
-                        <div>
-                            <button class="btn btn-primary btn-sm">Edit</button>
-                            <button class="btn btn-danger btn-sm">Delete</button>
+                        <div class="d-flex align-items-center">
+                            <form action="<?= app\core\Route::url('index', 'edit') ?>" method="post">
+                                <input type="hidden" name="trip_id" value="<?= $trip['id'] ?>">
+                                <input type="submit" class="btn btn-primary btn-sm mr-3" value="Edit">
+                            </form>
+                            <form action="<?= app\core\Route::url('index', 'delete') ?>" method="post">
+                                <input type="hidden" name="trip_id" value="<?= $trip['id'] ?>">
+                                <input type="submit" class="btn btn-danger btn-sm" value="Delete">
+                            </form>
                         </div>
                     </div>
 
@@ -37,7 +43,7 @@
                         <!-- Two Columns for Properties -->
                         <div class="row">
                             <div class="col-7">
-                                <p><strong>Author:</strong> John Doe</p>
+                                <p><strong>Author:</strong> <?= $trip['user'] ?></p>
                                 <p><strong>Hike period:</strong> <?= $trip['start_date'] ?> - <?= $trip['end_date'] ?></p>
                             </div>
                             <div class="col-5">
@@ -45,141 +51,106 @@
                                 <p><strong>Difficulty:</strong> <?= $trip['difficulty'] ?></p>
                             </div>
                         </div>
-                        <p><strong>Inventory:</strong></p>
-                        <button class="btn btn-primary btn-sm mb-2">
-                            All inventory
-                        </button>
-                        <table class="table table-bordered table-sm text-center">
-                            <thead>
-                                <tr>
-                                    <th>Photo</th>
-                                    <th>Item</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td class="align-middle">
-                                        <img
-                                            src="https://via.placeholder.com/50"
-                                            class="img-thumbnail inventory-photo"
-                                            data-toggle="modal"
-                                            data-target="#photoModal"
-                                            data-photo="https://via.placeholder.com/300"
-                                            alt="Tent" />
-                                    </td>
-                                    <td class="align-middle">Tent</td>
-                                    <td class="align-middle">
-                                        <button class="btn btn-danger btn-sm">Delete</button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="align-middle">
-                                        <img
-                                            src="https://via.placeholder.com/50"
-                                            class="img-thumbnail inventory-photo"
-                                            data-toggle="modal"
-                                            data-target="#photoModal"
-                                            data-photo="https://via.placeholder.com/300"
-                                            alt="Sleeping Bag" />
-                                    </td>
-                                    <td class="align-middle">Sleeping Bag</td>
-                                    <td class="align-middle">
-                                        <button class="btn btn-danger btn-sm">Delete</button>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+                        <!-- Inventory Section -->
+                        <div class="row mb-3">
+                            <div class="col-12 d-flex justify-content-between align-items-center">
+                                <p><strong>Inventory:</strong></p>
+                                <div class="d-flex align-items-center">
+                                    <a href="<?= app\core\Route::url('inventory') ?>" class="btn btn-primary btn-sm">All inventory</a>
+                                </div>
+                            </div>
+                        </div>
+                        <?php if (empty($inventories)): ?>
+                            <div class="d-flex flex-column align-items-center">
+                                <p class="font-weight-bold text-center">No inventory items available</p>
+                                <div class="d-flex justify-content-center">
+                                    <form action="<?= app\core\Route::url('index', 'edit') ?>" method="post">
+                                        <input type="hidden" name="trip_id" value="<?= $trip['id'] ?>">
+                                        <input type="submit" class="btn btn-primary btn-sm mr-3" value="Add inventory">
+                                    </form>
+                                </div>
+                            </div>
+                        <?php else: ?>
+                            <table class="table table-bordered table-sm text-center">
+                                <thead>
+                                    <tr>
+                                        <th>Photo</th>
+                                        <th>Item</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($inventories as $inventory): ?>
+                                        <tr>
+                                            <td class="align-middle">
+                                                <img
+                                                    src="<?= $inventory['photo'] ?>"
+                                                    class="img-thumbnail inventory-photo"
+                                                    data-toggle="modal"
+                                                    data-target="#photoModal"
+                                                    data-photo="<?= $inventory['photo'] ?>"
+                                                    alt="<?= $inventory['name'] ?>" />
+                                            </td>
+                                            <td class="align-middle"><?= $inventory['name'] ?></td>
+                                            <td class="align-middle">
+                                                <form action="<?= app\core\Route::url('index', 'deleteInventory') ?>" method="post">
+                                                    <input type="hidden" name="inventory_id" value="<?= $inventory['id'] ?>">
+                                                    <input type="hidden" name="trip_id" value="<?= $trip['id'] ?>">
+                                                    <input type="submit" class="btn btn-danger btn-sm" value="Delete">
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        <?php endif; ?>
 
-                    <!-- Travel Map -->
-                    <p class="font-weight-bold">Travel path: Sosnytsa > Mena > Berezna > Chernihiv</p>
-                    <div class="travel-map">
-                        <span class="text-secondary font-weight-bold">TRAVEL MAP</span>
-                    </div>
-                    <!-- Likes -->
-                    <div class="d-flex justify-content-between mt-2 mb-4">
-                        <button class="btn btn-outline-danger btn-sm">&#x2764;</button>
-                        <span>30 Likes</span>
-                    </div>
+                        <!-- Route Section -->
+                        <p class="mt-4"><strong>Route:</strong></p>
+                        <?php if (!$route): ?>
+                            <div class="d-flex flex-column align-items-center">
+                                <p class="font-weight-bold text-center">No route yet</p>
+                                <form action="<?= app\core\Route::url('route', 'add_route') ?>" method="post">
+                                    <input type="hidden" name="trip_id" value="<?= $trip['id'] ?>">
+                                    <input type="submit" class="btn btn-primary btn-sm" value="Add route">
+                                </form>
+                            </div>
+                        <?php else: ?>
+                            <p class="text-center font-weight-bold">Route: <?= $route['description'] ?></p>
+                            <div class="travel-map text-center">
+                                <span class="text-secondary font-weight-bold"><?= $route['photo'] ?></span>
+                            </div>
+                        <?php endif; ?>
 
-                    <!-- Photo Gallery -->
-                    <div class="row text-left ml-1 mb-3">
-                        <a href="#" class="btn btn-primary btn-sm">Add photo</a>
-                    </div>
-                    <div class="row mb-5">
-                        <div class="col-6 col-md-3 mb-4">
-                            <img
-                                src="https://via.placeholder.com/300x200"
-                                class="img-thumbnail"
-                                alt="Photo 1" />
-                            <div class="text-center mt-1">
-                                <span class="d-block">15 Likes</span>
-                                <button class="btn btn-primary btn-sm w-100">View</button>
+                        <!-- Photo Gallery Section -->
+                        <p class="mt-4"><strong>Photo Gallery:</strong></p>
+                        <?php if (empty($photos)): ?>
+                            <div class="d-flex flex-column align-items-center">
+                                <p class="font-weight-bold text-center">No photos available</p>
+                                <form action="<?= app\core\Route::url('gallery', 'add') ?>" method="post">
+                                    <input type="hidden" name="trip_id" value="<?= $trip['id'] ?>">
+                                    <input type="submit" class="btn btn-primary btn-sm" value="Add photo">
+                                </form>
                             </div>
-                        </div>
-                        <div class="col-6 col-md-3 mb-4">
-                            <img
-                                src="https://via.placeholder.com/300x200"
-                                class="img-thumbnail"
-                                alt="Photo 2" />
-                            <div class="text-center mt-1">
-                                <span class="d-block">20 Likes</span>
-                                <button class="btn btn-primary btn-sm w-100">View</button>
+                        <?php else: ?>
+                            <div class="row">
+                                <?php foreach ($photos as $photo): ?>
+                                    <div class="col-6 col-md-3 mb-4">
+                                        <img src="<?= $photo['photo'] ?>" class="img-thumbnail" alt="Photo" />
+                                        <div class="text-center mt-1">
+                                            <span class="d-block"><?= $photo['likes'] ?> Likes</span>
+                                            <form action="<?= app\core\Route::url('gallery', 'show') ?>" method="post">
+                                                <input type="hidden" name="id" value="<?= $photo['id'] ?>">
+                                                <input type="submit" class="btn btn-primary btn-sm w-100" value="View">
+                                            </form>
+                                        </div>
+                                    </div>
+                                <?php endforeach; ?>
                             </div>
-                        </div>
-                        <div class="col-6 col-md-3 mb-4">
-                            <img
-                                src="https://via.placeholder.com/300x200"
-                                class="img-thumbnail"
-                                alt="Photo 3" />
-                            <div class="text-center mt-1">
-                                <span class="d-block">10 Likes</span>
-                                <button class="btn btn-primary btn-sm w-100">View</button>
-                            </div>
-                        </div>
-                        <div class="col-6 col-md-3 mb-4">
-                            <img
-                                src="https://via.placeholder.com/300x200"
-                                class="img-thumbnail"
-                                alt="Photo 4" />
-                            <div class="text-center mt-1">
-                                <span class="d-block">25 Likes</span>
-                                <button class="btn btn-primary btn-sm w-100">View</button>
-                            </div>
-                        </div>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
-<div
-    class="modal fade"
-    id="photoModal"
-    tabindex="-1"
-    role="dialog"
-    aria-labelledby="photoModalLabel"
-    aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="photoModalLabel">Inventory Photo</h5>
-                <button
-                    type="button"
-                    class="close"
-                    data-dismiss="modal"
-                    aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body text-center">
-                <img
-                    id="modalPhoto"
-                    src=""
-                    class="img-fluid rounded"
-                    alt="Inventory Item" />
-            </div>
-        </div>
-    </div>
-</div>
+    <?php include_once self::VIEWS_DIR . 'modals' . DIRECTORY_SEPARATOR . 'inv_photo.php' ?>

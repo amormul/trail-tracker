@@ -3,10 +3,10 @@
         <div class="row">
             <div class="col-7 d-flex justify-content-between align-items-center mb-2">
                 <a href="<?= app\core\Route::url() ?>" class="btn btn-primary">Back</a>
-                <h2 class="text-center">Create Trip</h2>
+                <h2 class="text-center">Edit Trip</h2>
             </div>
         </div>
-        <form action="<?= \app\core\Route::url('index', 'store') ?>" method="post" enctype="multipart/form-data">
+        <form action="<?= \app\core\Route::url('index', 'update') ?>" method="post" enctype="multipart/form-data">
             <div class="row">
                 <!-- Left Column for Photos -->
                 <div class="col-md-4">
@@ -16,7 +16,7 @@
                         <label for="coverPhoto" class="d-flex justify-content-center align-items-center photo-label">
                             <div id="coverPhotoPreview">
                                 <span class="d-block text-center mb-2">
-                                    <img src="/images/add.png" alt="Add" class="img-fluid w-50" />
+                                    <img src="<?= $old['photo'] ?>" alt="Trip Photo" class="img-fluid w-50" />
                                 </span>
                             </div>
                         </label>
@@ -37,6 +37,7 @@
                 <div class="col-md-8">
                     <!-- Hike Name and Description -->
                     <div class="form-group">
+                        <input type="hidden" name="id" value="<?= $old['id'] ?>">
                         <label for="hikeName">Trip name:</label>
                         <input
                             type="text"
@@ -153,7 +154,10 @@
                         name="inventory[]"
                         multiple="multiple">
                         <?php foreach ($inventories as $inventory): ?>
-                            <option value="<?= $inventory['id'] ?>" <?= (isset($old['inventory']) && in_array($inventory['id'], $old['inventory'])) ? 'selected' : '' ?>><?= $inventory['name'] ?></option>
+                            <option value="<?= $inventory['id'] ?>"
+                                <?= (isset($selectedInventory) && in_array($inventory['id'], $selectedInventory)) ? 'selected' : '' ?>>
+                                <?= $inventory['name'] ?>
+                            </option>
                         <?php endforeach; ?>
                     </select>
                 </div>

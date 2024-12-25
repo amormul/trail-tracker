@@ -13,6 +13,37 @@ class Route extends \app\core\AbstractDB
     public function __construct()
     {
         parent::__construct();
+
+    }
+
+    /**
+     * returns route parameters by identifier
+     * @param int $id
+     * @return array|null
+     */
+    public function getRouteById(int $id) : array | null
+    {
+        return $this->getById('rotes','route_id', $id);
+    }
+
+    /**
+     * returns route parameters by trip identifier
+     * @param int $id
+     * @return array|null|bool
+     */
+    public function getByTripId(int $id) : array | null | bool
+    {
+        $query = "SELECT * FROM routes WHERE trip_id = ?;";
+        /* создание подготавливаемого запроса */
+        if($stmt = $this->db->prepare($query)) {
+            /* связывание параметров с метками */
+            $stmt->bind_param("i", $id);
+            /* выполнение запроса */
+            $stmt->execute();
+            /* Связываем переменные результата */
+            return $stmt->get_result()->fetch_assoc();
+        }
+        return null;
     }
 
     /**
@@ -96,6 +127,21 @@ class Route extends \app\core\AbstractDB
                 return $this->_deleteLike('route_id',$route_id,
                     'user_id', $user_id );
             }
+        }
+        return false;
+    }
+
+    public function addLike(int $route_id, int $user_id) : bool
+    {
+        $query = "INSERT INTO likes_route (route_id, user_id) VALUES (?, ?);";
+        /* создание подготавливаемого запроса */
+        if($stmt = $this->db->prepare($query)) {
+            /* связывание параметров с метками */
+            $stmt->bind_param("ii", $route_id, $user_id);
+            /* выполнение запроса */
+            return $stmt->execute();
+        }
+        return false;
     }
 
     /**
@@ -114,7 +160,6 @@ class Route extends \app\core\AbstractDB
             /* выполнение запроса */
             $stmt->execute();
             $res = $stmt->get_result()->fetch_assoc();
-            var_dump($res);
             /* Связываем переменные результата */
             $count = $res["count"];
         }

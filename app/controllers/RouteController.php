@@ -7,6 +7,9 @@ use app\models\Route;
 
 class RouteController extends \app\core\AbstractController
 {
+    protected Route $route;
+    protected Session $session;
+
     public function __construct()
     {
         parent::__construct();

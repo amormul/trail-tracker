@@ -1,5 +1,7 @@
 <?php
+
 namespace app\models;
+
 class Inventory extends \app\core\AbstractDB
 {
     //Create card with inventory
@@ -27,6 +29,6 @@ class Inventory extends \app\core\AbstractDB
     public function getAllInventory(): ?array
     {
         $result = $this->db->query("SELECT * FROM inventory");
-        return $result->fetch_all(MYSQLI_ASSOC)?: null;
+        return $result->fetch_all(MYSQLI_ASSOC) ?: null;
     }
 }

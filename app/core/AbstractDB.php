@@ -54,18 +54,6 @@ class AbstractDB
     public function add(array $data, string $types): bool
     {
         $fields = array_keys($data);
-//        $values = array_map(fn($val) => "'{$val}'",array_values($data));
-//        $query = "INSERT INTO {$this->table} ("
-//            . implode(',',$fields) . ") VALUES ("
-//            . implode(',',$values) . ");";
-//        var_dump($query);
-//        exit;
-//        $result = $this->db->query($query);
-//        if($this->db->errno != 0){
-//            throw new \Exception($this->db->error);
-//        }
-//        return $result;
-
         $values = array_values($data);
         $val = [];
         foreach ($values as $value) {
@@ -75,7 +63,7 @@ class AbstractDB
             . implode(',',$fields) . ") VALUES ("
             . implode(',',$val) . ");";
         if ($stmt = mysqli_prepare($this->db, $query)) {
-            $stmt->bind_param($types, $values[0],$values[1],$values[2]);
+            $stmt->bind_param($types, ...$values);
             $stmt->execute();
             return $result = $stmt->get_result();
         }

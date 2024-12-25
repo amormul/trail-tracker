@@ -9,30 +9,30 @@
                 </form>
             </div>
             <h2 class="text-center mt-4 mb-4">Add Photo</h2>
-            <div class="row shadow p-4 rounded bg-light">
-                <!-- Photo upload -->
-                <div class="col-md-6 d-flex align-items-center justify-content-center">
-                    <form action="<?= app\core\Route::url('gallery', 'savePhoto') ?>" method="post" enctype="multipart/form-data" class="w-100">
-                        <input type="hidden" name="trip_id" value="<?= $tripId ?>">
-                        <div class="form-group mb-3">
-                            <label for="photoFile" class="form-label">Photo File</label>
-                            <div class="mb-3">
-                                <img id="photoPreview" src="#" alt="Your Photo" class="img-thumbnail d-none" style="max-width: 100%; max-height: 300px;">
-                            </div>
-                            <input type="file" id="photoFile" name="file" class="form-control" accept="image/*" required>
+            <form action="<?= app\core\Route::url('gallery', 'savePhoto') ?>" method="post" enctype="multipart/form-data" class="row shadow p-4 rounded bg-light">
+                <input type="hidden" name="trip_id" value="<?= $tripId ?>">
+                <!-- Left Column: Photo Upload -->
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label for="photoFile" class="form-label">Photo File</label>
+                        <div class="mb-3">
+                            <img id="photoPreview" src="#" alt="Your Photo" class="img-thumbnail d-none" style="max-width: 100%; max-height: 300px;">
                         </div>
-                        <div class="col-md-6">
-                            <div class="form-group mb-3">
-                                <label for="photoComment">Comment</label>
-                                <textarea id="photoComment" name="comment" class="form-control" rows="6" placeholder="Tell about your trip"></textarea>
-                            </div>
-                            <div class="text-center">
-                                <button type="submit" class="btn btn-primary">Add Photo</button>
-                            </div>
-                        </div>
-                    </form>
+                        <input type="file" id="photoFile" name="file" class="form-control" accept="image/*" required>
+                    </div>
                 </div>
-            </div>
+
+                <!-- Right Column: Comment -->
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label for="photoComment">Comment</label>
+                        <textarea id="photoComment" name="comment" class="form-control" rows="6" placeholder="Tell about your trip"></textarea>
+                    </div>
+                    <div class="text-center mt-4">
+                        <button type="submit" class="btn btn-primary">Add Photo</button>
+                    </div>
+                </div>
+            </form>
         </div>
     </div>
 </div>

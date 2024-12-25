@@ -3,6 +3,7 @@
 namespace app\controllers;
 
 use app\core\AbstractController;
+use app\core\Helpers;
 use app\core\Route;
 use app\core\Session;
 use app\models\Inventory;
@@ -117,13 +118,16 @@ class InventoryController extends AbstractController
      */
     private function savePhoto(array $photo): ?string
     {
-        $uploadDir = 'storage/imageInventory/';
-        $uploadFile = $uploadDir . basename($photo['name']);
-        //TODO: if file not exist
-        if (move_uploaded_file($photo['tmp_name'], $uploadFile)) {
-            return $uploadFile;
-        }
-        return null;
+        $uploadDir = 'storage\imageInventory';
+        return Helpers::savePhoto($uploadDir);
+
+        //$uploadFile =
+//            $uploadDir . basename($photo['name']);
+//        //TODO: if file not exist
+//        if (move_uploaded_file($photo['tmp_name'], $uploadFile)) {
+//            return $uploadFile;
+//        }
+//        return null;
     }
 
     private function show()

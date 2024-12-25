@@ -13,8 +13,8 @@ use app\core\TripValidator;
 
 class IndexController extends AbstractController
 {
-    protected Trip $model;
-    protected Session $session;
+//    protected Trip $model;
+//    protected Session $session;
     protected TripValidator $validator;
 
     private string $fileDir = 'storage' . DIRECTORY_SEPARATOR . 'imageTrip';
@@ -30,11 +30,15 @@ class IndexController extends AbstractController
     public function __construct()
     {
         parent::__construct();
-        $this->session = new Session();
-        $this->model = new Trip();
-        $this->validator = new TripValidator();
+        try{
+            $this->loadModel('trip');
+            $this->loadModel('user');
+            $this->loadModel('route');
+            $this->validator = new TripValidator();
+        } catch (Exception $e) {
+            $this->outputException($e->getMessage());
+        }
     }
-
     /**
      * Display all trips.
      *
@@ -42,10 +46,11 @@ class IndexController extends AbstractController
      */
     public function index(): void
     {
-        $trips = $this->enrichTrips($this->model->getAll());
+        $trips = $this->enrichTrips($this->model_trip->getAll());
         $this->view->render('index', [
             'title' => 'All trips',
-            'trips' => $trips
+            'trips' => $trips,
+            'login' => $this->login,
         ]);
     }
 
@@ -58,12 +63,16 @@ class IndexController extends AbstractController
     {
         $tripId = $this->getTripIdFromRequest();
         $trip = $this->getEnrichedTrip($tripId);
+        $route = $this->model_route->getByTripId($trip['id']) ?? null;
+        $likes_route = $this->model_route->countLikes($route['id']) ?? 0;
 
         $this->view->render('trip', [
             'title' => 'Trip page',
+            'login' => $this->login,
             'trip' => $trip,
-            'route' => $this->model->getById('routes', 'trip_id', $trip['id']),
-            'inventories' => $this->getEnrichedInventory($this->model->getInventoryByTrip($tripId))
+            'route' => $route,
+            'likes_route' => $likes_route,
+            'inventories' => $this->getEnrichedInventory($this->model_trip->getInventoryByTrip($tripId))
         ]);
     }
 
@@ -95,10 +104,9 @@ class IndexController extends AbstractController
             $this->saveSessionData($data, $errors);
             Route::redirect('/index/create');
         }
-
         $data['photo'] = Helpers::savePhoto($this->fileDir, $_FILES['photo']);
-        $data['user_id'] = $this->getCurrentUserId();
-        $tripId = $this->model->create($data);
+        $data['user_id'] = $user['id'];//$this->getCurrentUserId();
+        $tripId = $this->model_trip->create($data);
 
         if (!$tripId) {
             throw new RuntimeException('Failed to create trip.');
@@ -141,7 +149,7 @@ class IndexController extends AbstractController
 
         $data['photo'] = $this->processPhotoUpload($data);
 
-        $this->model->update($data);
+        $this->model_trip->update($data);
         $this->storeTripInventory($data['id'], $inventory);
 
         $this->session->trip_id = $data['id'];
@@ -156,9 +164,9 @@ class IndexController extends AbstractController
     public function delete(): void
     {
         $tripId = $this->getTripIdFromRequest();
-        $oldPhoto = $this->model->getById('trips', 'id', $tripId)['photo'];
+        $oldPhoto = $this->model_trip->getById($tripId)['photo'];
 
-        if (!$this->model->delete($tripId)) {
+        if (!$this->model_trip->delete($tripId)) {
             throw new RuntimeException('Failed to delete trip.');
         }
         Helpers::deletePhoto($oldPhoto);
@@ -175,9 +183,11 @@ class IndexController extends AbstractController
     {
         $tripId = $this->getTripIdFromRequest();
         if ($tripId) {
-            $this->model->checkLike($tripId, $this->getCurrentUserId())
-                ? $this->model->addLike($tripId, $this->getCurrentUserId())
-                : $this->model->deleteLike($tripId, $this->getCurrentUserId());
+            $user = $this->model_user->getByLogin($this->login);
+            $user_id = $user['id'];
+            $this->model_trip->checkLike($tripId, $user_id)
+                ? $this->model_trip->addLike($tripId, $user_id)
+                : $this->model_trip->deleteLike($tripId, $user_id);
         }
 
         $this->session->trip_id = $tripId;
@@ -196,7 +206,7 @@ class IndexController extends AbstractController
         if (!$inventory) return;
 
         foreach ($inventory as $inventoryId) {
-            $this->model->createTripInventory([
+            $this->model_trip->createTripInventory([
                 'trip_id' => $tripId,
                 'inventory_id' => $inventoryId
             ]);
@@ -207,7 +217,7 @@ class IndexController extends AbstractController
     {
         $inventoryId = filter_input(INPUT_POST, 'inventory_id', FILTER_VALIDATE_INT);
         $tripId = filter_input(INPUT_POST, 'trip_id', FILTER_VALIDATE_INT);
-        $this->model->deleteTripInventory($tripId, $inventoryId);
+        $this->model_trip->deleteTripInventory($tripId, $inventoryId);
         $this->session->trip_id = $tripId;
         Route::redirect('/index/show');
     }
@@ -220,7 +230,7 @@ class IndexController extends AbstractController
     public function addStatus(): void
     {
         $data['name'] = filter_input(INPUT_POST, 'name', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-        if (!$this->model->createStatus($data)) {
+        if (!$this->model_trip->createStatus($data)) {
             throw new RuntimeException('Status not created');
         }
 
@@ -236,7 +246,7 @@ class IndexController extends AbstractController
     {
         $data['name'] = filter_input(INPUT_POST, 'name', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
         $data['description'] = filter_input(INPUT_POST, 'description', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-        if (!$this->model->createDifficult($data)) {
+        if (!$this->model_trip->createDifficult($data)) {
             throw new RuntimeException('Difficulty not created');
         }
 
@@ -264,9 +274,8 @@ class IndexController extends AbstractController
     private function renderForm(string $view, string $title, ?int $tripId = null): void
     {
         $errors = $this->session->errors ?? [];
-        $old = $this->session->old ?? ($tripId ? $this->model->getById('trips', 'id', $tripId) : []);
-
-        $currentInventory = $tripId ? $this->getEnrichedInventory($this->model->getInventoryByTrip($tripId)) : [];
+        $old = $this->session->old ?? ($tripId ? $this->model_trip->getById($tripId) : []);
+        $currentInventory = $tripId ? $this->getEnrichedInventory($this->model_trip->getInventoryByTrip($tripId)) : [];
         $currentInventoryIds = array_column($currentInventory, 'id');
 
         $selectedInventory = isset($old['inventory'])
@@ -274,14 +283,16 @@ class IndexController extends AbstractController
             : $currentInventoryIds;
 
         $this->clearSessionData();
-
+        $route = $this->model_route->getByTripId($tripId) ?? null;
         $this->view->render($view, [
             'title' => $title,
-            'difficulties' => $this->model->getAllDifficulties(),
-            'statuses' => $this->model->getAllStatuses(),
+            'login' => $this->login,
+            'difficulties' => $this->model_trip->getAllDifficulties(),
+            'statuses' => $this->model_trip->getAllStatuses(),
             'inventories' => (new Inventory())->getAllInventory(),
             'selectedInventory' => $selectedInventory,
             'old' => $old,
+            'route' => $route,
             'errors' => $errors
         ]);
     }
@@ -296,12 +307,12 @@ class IndexController extends AbstractController
     private function processPhotoUpload(array $data): string
     {
         if (!empty($_FILES['photo']) && $_FILES['photo']['error'] === UPLOAD_ERR_OK) {
-            $fullPath = $this->model->getById('trips', 'id', $data['id'])['photo'];
+            $fullPath = $this->model_trip->getById('trips', 'id', $data['id'])['photo'];
             Helpers::deletePhoto($fullPath);
             return Helpers::savePhoto($this->fileDir, $_FILES['photo']);
         }
 
-        return $this->model->getById('trips', 'id', $data['id'])['photo'];
+        return $this->model_trip->getById($data['id'])['photo'];
     }
 
     /**
@@ -313,12 +324,11 @@ class IndexController extends AbstractController
     private function enrichTrips(?array $trips): array
     {
         if (!$trips) return [];
-
         return array_map(function ($trip) {
-            $trip['status'] = $this->model->getStatusById($trip['status_id'])['name'];
-            $trip['difficulty'] = $this->model->getDifficultyById($trip['difficulty_id'])['name'];
-            $trip['likes'] = $this->model->countLikes($trip['id']);
-            $trip['user'] = $this->model->getById('users', 'id', $trip['user_id'])['login'];
+            $trip['status'] = $this->model_trip->getStatusById($trip['status_id'])['name'];
+            $trip['difficulty'] = $this->model_trip->getDifficultyById($trip['difficulty_id'])['name'];
+            $trip['likes'] = $this->model_trip->countLikes($trip['id']);
+            $trip['user'] = $this->model_user->getById($trip['user_id'])['login'];
             return $trip;
         }, $trips);
     }
@@ -332,7 +342,7 @@ class IndexController extends AbstractController
      */
     private function getEnrichedTrip(int $tripId): array
     {
-        $trip = $this->model->getById('trips', 'id', $tripId);
+        $trip = $this->model_trip->getById($tripId);
         if (!$trip) {
             throw new RuntimeException('Trip not found.');
         }
@@ -350,7 +360,7 @@ class IndexController extends AbstractController
         if (!$inventoryIds) return [];
 
         return array_filter(array_map(function ($id) {
-            return $this->model->getById('inventory', 'id', $id);
+            return $this->model_trip->getTableById('inventory',$id);
         }, $inventoryIds));
     }
 

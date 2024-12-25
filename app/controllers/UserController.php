@@ -16,18 +16,12 @@ class UserController extends AbstractController
     protected User $model;
 
     /**
-     * @var Session Объект для управления сессиями
-     */
-    protected Session $session;
-
-    /**
      * Конструктор контроллера пользователя
      */
     public function __construct()
     {
         parent::__construct();
         $this->model = new User();
-        $this->session = new Session();
     }
 
     /**
@@ -140,7 +134,7 @@ class UserController extends AbstractController
      */
     public function logout(): void
     {
-        $this->session->destroy();
-        Route::redirect('/user/login');
+        $this->session->remote('login');
+        Route::redirect('/');
     }
 }

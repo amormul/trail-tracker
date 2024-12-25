@@ -183,13 +183,14 @@ class IndexController extends AbstractController
     {
         $tripId = $this->getTripIdFromRequest();
         if ($tripId) {
+            if ($this->login){
             $user = $this->model_user->getByLogin($this->login);
-            $user_id = $user['id'];
-            $this->model_trip->checkLike($tripId, $user_id)
-                ? $this->model_trip->addLike($tripId, $user_id)
-                : $this->model_trip->deleteLike($tripId, $user_id);
+                $user_id = $user['id'];
+                $this->model_trip->checkLike($tripId, $user_id)
+                    ? $this->model_trip->addLike($tripId, $user_id)
+                    : $this->model_trip->deleteLike($tripId, $user_id);
+            }
         }
-
         $this->session->trip_id = $tripId;
         Route::redirect($_SERVER['HTTP_REFERER'] ?? '/index/index');
     }

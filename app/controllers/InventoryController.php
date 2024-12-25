@@ -10,14 +10,12 @@ class InventoryController extends AbstractController
 {
     protected Inventory $model;
     protected Session $session;
-    protected Validator $validator;
 
     public function __construct()
     {
         parent::__construct();
         $this->session = new Session();
         $this->model = new Inventory();
-        $this->validator = new Validator();
     }
 
 
@@ -176,4 +174,6 @@ class InventoryController extends AbstractController
             'inventory' => $inventory
         ]);
     }
+
+
 }

@@ -17,6 +17,7 @@ class IndexController extends AbstractController
     protected Trip $model;
     protected Session $session;
     protected TripValidator $validator;
+    protected Gallery $gallery;
 
     private string $fileDir = 'storage' . DIRECTORY_SEPARATOR . 'imageTrip';
     private array $fields = [
@@ -34,6 +35,7 @@ class IndexController extends AbstractController
         $this->session = new Session();
         $this->model = new Trip();
         $this->validator = new TripValidator();
+        $this->gallery = new Gallery();
     }
 
     /**
@@ -59,8 +61,7 @@ class IndexController extends AbstractController
     {
         $tripId = $this->getTripIdFromRequest();
         $trip = $this->getEnrichedTrip($tripId);
-        $gallery = new Gallery();
-        $photos = $gallery->getPhotosByTripId($tripId);
+        $photos = $this->gallery->getPhotosByTripId($tripId);
 
         $this->view->render('trip', [
             'title' => 'Trip page',

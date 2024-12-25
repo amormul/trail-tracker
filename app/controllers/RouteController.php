@@ -10,8 +10,12 @@ class RouteController extends \app\core\AbstractController
     public function __construct()
     {
         parent::__construct();
-        $this->loadModel('route');
-        $this->loadModel('user');
+        try{
+            $this->loadModel('route');
+            $this->loadModel('user');
+        } catch (Exception $e) {
+            $this->outputException($e->getMessage());
+        }
     }
 
     /**
@@ -21,7 +25,7 @@ class RouteController extends \app\core\AbstractController
     public function inputData(): array
     {
         return [
-            'trip_id' => (int)filter_input(INPUT_POST, 'trip_id',FILTER_VALIDATE_INT) ,
+            'trip_id' => filter_input(INPUT_POST, 'trip_id',FILTER_VALIDATE_INT) ,
             'description' => filter_input(INPUT_POST, 'route_description'),
             'photo' => $_FILES['route_photo'],
             'file' => filter_input(INPUT_POST, 'current_photo'),
@@ -75,7 +79,7 @@ class RouteController extends \app\core\AbstractController
                 ]);
             } else {
                 try {
-                    $route = $this->model_route->getWhere('trip_id', 1, 'i');
+                    $route = $this->model_route->getWhere('trip_id', 'user_id', 'i');
                     if (empty($route)) {
                         $this->model_route->create($data);
                     } else {

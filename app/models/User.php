@@ -2,6 +2,7 @@
 namespace app\models;
 class User extends \app\core\AbstractDB
 {
+    protected $table = 'users';
     /**
      * Создаёт нового пользователя в базе данных.
      * @param array $data Ассоц массив username, email, password, phone.

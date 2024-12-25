@@ -28,7 +28,7 @@ class Gallery extends AbstractDB
      */
     public function getPhotoById(int $photoId): ?array
     {
-        $query = "SELECT g.id, g.photo, g.trip_id, g.comment, u.login AS author 
+        $query = "SELECT g.id, g.photo, g.trip_id, g.comment, g.user_id, u.login AS author 
         FROM gallery g LEFT JOIN users u ON g.user_id = u.id
         WHERE g.id = ? AND g.deleted_at IS NULL";
         $stmt = $this->db->prepare($query);
@@ -67,6 +67,19 @@ class Gallery extends AbstractDB
         $query = "INSERT INTO gallery (user_id, photo, trip_id, comment) VALUES (?, ?, ?, ?)";
         $stmt = $this->db->prepare($query);
         $stmt->bind_param("isis", $userId, $photo, $tripId, $comment);
+        return $stmt->execute();
+    }
+
+    /**
+     * "deletes" photo
+     * @param int $photoId
+     * @return bool
+     */
+    public function delete(int $photoId): bool
+    {
+        $query = "UPDATE gallery SET deleted_at = NOW() WHERE id = ?";
+        $stmt = $this->db->prepare($query);
+        $stmt->bind_param("i", $photoId);
         return $stmt->execute();
     }
 

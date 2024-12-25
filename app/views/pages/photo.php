@@ -5,7 +5,7 @@
             <input type="submit" class="btn btn-primary text-white btn-sm mr-2" value="Back">
         </form>
         <?php if ($isOwner): ?>
-            <form action="<?= app\core\Route::url('gallery', 'editPhoto') ?>" method="post">
+            <form action="<?= app\core\Route::url('gallery', 'editPhoto') ?>" method="get">
                 <input type="hidden" name="id" value="<?= $photo['id'] ?>">
                 <input type="submit" class="btn btn-warning text-black btn-sm mr-2" value="Edit">
             </form>

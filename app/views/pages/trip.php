@@ -138,7 +138,7 @@
                                     <div class="col-6 col-md-3 mb-4">
                                         <img src="<?= $photo['photo'] ?>" class="img-thumbnail" alt="Photo" />
                                         <div class="text-center mt-1">
-                                            <form action="<?= app\core\Route::url('gallery', 'viewPhoto') ?>" method="post">
+                                            <form action="<?= app\core\Route::url('gallery', 'viewPhoto') ?>" method="get">
                                                 <input type="hidden" name="id" value="<?= $photo['id'] ?>">
                                                 <input type="submit" class="btn btn-primary btn-sm w-100" value="View">
                                             </form>

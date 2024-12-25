@@ -54,10 +54,14 @@ class RouteController extends \app\core\AbstractController
      */
     public function add_route(): void
     {
+        $errors = $this->session->errors_route ?? [];
+        $this->session->remote('errors_route');
+
         $trip_id = filter_input(INPUT_POST, 'trip_id',FILTER_VALIDATE_INT);
         $this->view->render('add_route', [
             'title' => 'Add Route',
             'trip_id' => $trip_id,
+            'errors' => $errors,
         ]);
     }
     /**
@@ -75,19 +79,11 @@ class RouteController extends \app\core\AbstractController
             $errors = \app\core\RouteValidators::validateRoute($data);
             $this->session->trip_id = $data['trip_id'];
             if (!empty($errors)) {
-                $this->view->render('add_route', [
-                    'title' => 'Add Route',
-                    'trip_id' => $data['trip_id'],
-                    'errors' => $errors,
-                ]);
+                $this->session->errors_route = $errors;
+               \app\core\Route::redirect('/route/add_route');
             } else {
                 try {
-                    $route = $this->model_route->getWhere('trip_id', 'user_id', 'i');
-                    if (empty($route)) {
-                        $this->model_route->create($data);
-                    } else {
-                        $this->model_route->update($data);
-                    }
+                    $this->model_route->create($data);
                 } catch (Exception $e) {
                     $this->outputException($e->getMessage());
                 }
@@ -102,8 +98,8 @@ class RouteController extends \app\core\AbstractController
      */
     public function edit_route(): void
     {
-        $trip_id = filter_input(INPUT_POST, 'trip_id',FILTER_VALIDATE_INT);
-        $route = $this->model_route->getWhere('trip_id',$trip_id,'i');
+        $trip_id = filter_input(INPUT_GET, 'trip_id',FILTER_VALIDATE_INT);
+        $route = $this->model_route->getByTripId($trip_id);
         $exist_photo = true;
         if (empty($route['photo'])) {
             $route['photo'] = "/images/add.png";
@@ -130,12 +126,8 @@ class RouteController extends \app\core\AbstractController
             $this->session->trip_id = $data['trip_id'];
             $errors = \app\core\RouteValidators::validateRoute($data);
             if (!empty($errors)) {
-                $route = $this->model_route->getWhere('trip_id', $data['trip_id'], 'i');
-                $this->view->render('update_route', [
-                    'title' => 'Update Route',
-                    'route' => $route,
-                    'errors' => $errors,
-                ]);
+                $this->session->errors_route = $errors;
+                \app\core\Route::redirect('/route/edit_route');
             } else {
                 try {
                     $this->model_route->update($data);
@@ -158,9 +150,9 @@ class RouteController extends \app\core\AbstractController
         if (!$res){
             $this->outputException('Missing from the database trip ' .  $trip_id);
         }else {
-            $user = $this->model_user->getByLogin($this->session->login);
+            $user = $this->model_user->getByLogin($this->login);
             $user_id = $user['id'];
-            $route = $this->model_route->getWhere('trip_id', $trip_id, 'i');
+            $route = $this->model_route->getByTripId($trip_id);
             $this->session->trip_id = $trip_id;
             try {
                 $res = $this->model_route->like($route['id'], $user_id);

@@ -10,42 +10,16 @@ class Route extends \app\core\AbstractDB
     private string $file = '';
     protected $table = 'routes';
     protected $tableLike = 'likes_route';
-    public function __construct()
-    {
-        parent::__construct();
-
-    }
-
-    /**
-     * returns route parameters by identifier
-     * @param int $id
-     * @return array|null
-     */
-    public function getRouteById(int $id) : array | null
-    {
-        return $this->getById('rotes','route_id', $id);
-    }
 
     /**
      * returns route parameters by trip identifier
      * @param int $id
-     * @return array|null|bool
+     * @return array|null
      */
-    public function getByTripId(int $id) : array | null | bool
+    public function getByTripId(int $id) : array | null
     {
-        $query = "SELECT * FROM routes WHERE trip_id = ?;";
-        /* создание подготавливаемого запроса */
-        if($stmt = $this->db->prepare($query)) {
-            /* связывание параметров с метками */
-            $stmt->bind_param("i", $id);
-            /* выполнение запроса */
-            $stmt->execute();
-            /* Связываем переменные результата */
-            return $stmt->get_result()->fetch_assoc();
-        }
-        return null;
+        return $this->getWhere('trip_id', $id);
     }
-
     /**
      * creates route
      * @param array $data
@@ -119,31 +93,14 @@ class Route extends \app\core\AbstractDB
     {
         $like = $this->getWhereLike('route_id',$route_id,'user_id',$user_id);
         if (empty($like)) {
-                return $this->_addLike([
-                    "route_id" => $route_id,
-                    "user_id" => $user_id,
-                ]);
-            }else{
-                return $this->_deleteLike('route_id',$route_id,
-                    'user_id', $user_id );
-            }
+            return $this->_addLike([
+                "route_id" => $route_id,
+                "user_id" => $user_id,
+            ]);
         }
-        return false;
+        return $this->_deleteLike('route_id',$route_id,
+            'user_id', $user_id );
     }
-
-    public function addLike(int $route_id, int $user_id) : bool
-    {
-        $query = "INSERT INTO likes_route (route_id, user_id) VALUES (?, ?);";
-        /* создание подготавливаемого запроса */
-        if($stmt = $this->db->prepare($query)) {
-            /* связывание параметров с метками */
-            $stmt->bind_param("ii", $route_id, $user_id);
-            /* выполнение запроса */
-            return $stmt->execute();
-        }
-        return false;
-    }
-
     /**
      * returns the number of likes in the route
      * @param int $id

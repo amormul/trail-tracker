@@ -44,12 +44,24 @@ class AbstractDB
         }
         return null;
     }
+    public function getTableById(string $table, int $id): array | null
+    {
+        $query = "SELECT * FROM {$table} WHERE id = ?;";
+        if ($stmt = mysqli_prepare($this->db, $query)) {
+            $stmt->bind_param("i", $id);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            return $result->fetch_assoc();
+        }
+        return null;
+    }
 
     public function getAll(): array | null
     {
         $query = "SELECT * FROM {$this->table}";
         $result = $this->db->query($query);
-        return $result->fetch_all(MYSQLI_ASSOC) ?? null;
+        $result =  $result->fetch_all(MYSQLI_ASSOC) ?? null;
+        return $result;
     }
     public function add(array $data, string $types): bool
     {
@@ -85,7 +97,7 @@ class AbstractDB
         }
         return $result;
     }
-    public function getWhere(string $fields, mixed $value, string $types,string $opeator = '='): array | null
+    public function getWhere(string $fields, mixed $value, string $types='i',string $opeator = '='): array | null
     {
         $query = "SELECT * FROM {$this->table} WHERE {$fields}{$opeator}?;";
         if ($stmt = mysqli_prepare($this->db, $query)) {

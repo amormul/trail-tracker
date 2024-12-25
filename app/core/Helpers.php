@@ -27,6 +27,8 @@ class Helpers
                 throw new \Exception('Photo was not uploaded: ' . $file);
             }
             $file = DIRECTORY_SEPARATOR . $file;
+            var_dump($file);
+            $file = str_replace('\\', '/', $file);
         }
         return $file;
     }
@@ -40,11 +42,11 @@ class Helpers
      */
     public static function deletePhoto(string $file): void
     {
-        var_dump($file);
         if(!empty($file)) {
-            $fileDir = ltrim($file, DIRECTORY_SEPARATOR);
+            $fileDir = str_replace('/', DIRECTORY_SEPARATOR, $file);
+            $fileDir = ltrim($fileDir, DIRECTORY_SEPARATOR);
             if (!unlink($fileDir)) {
-                throw new \Exception('Photo was not deleted: ' . $file);
+                throw new \Exception('Photo was not deleted: ' . $fileDir);
             }
         }
     }

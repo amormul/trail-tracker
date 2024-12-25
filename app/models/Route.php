@@ -6,7 +6,7 @@ use app\core\Helpers;
 
 class Route extends \app\core\AbstractDB
 {
-    private string $fileDir = "\storage\images\Route";
+    private string $fileDir = "\storage\imageRoute";
     private string $file = '';
     protected $table = 'routes';
     protected $tableLike = 'likes_route';

@@ -5,7 +5,7 @@ namespace app\core;
 use Couchbase\QueryErrorException;
 use MongoDB\Driver\Exception\ConnectionException;
 
-class AbstractDB
+abstract class AbstractDB
 {
     protected \mysqli $db;
     protected $table;
@@ -30,24 +30,14 @@ class AbstractDB
 
     /**
      * returns table parameters by identifier
+     * @param string $table
+     * @param string $field - identifier field
      * @param int $id
      * @return array|null
      */
-    public function getById(int $id): array | null
+    public function getById(string $table, string $field, int $id): array | null
     {
-        $query = "SELECT * FROM {$this->table} WHERE id = ?;";
-        var_dump($query);
-        if ($stmt = mysqli_prepare($this->db, $query)) {
-            $stmt->bind_param("i", $id);
-            $stmt->execute();
-            $result = $stmt->get_result();
-            return $result->fetch_assoc();
-        }
-        return null;
-    }
-    public function getTableById(string $table, int $id): array | null
-    {
-        $query = "SELECT * FROM {$table} WHERE id = ?;";
+        $query = "SELECT * FROM {$table} WHERE {$field} = ?;";
         if ($stmt = mysqli_prepare($this->db, $query)) {
             $stmt->bind_param("i", $id);
             $stmt->execute();
@@ -57,13 +47,23 @@ class AbstractDB
         return null;
     }
 
-    public function getAll(): array | null
+    /**
+     * return all table
+     * @return array|null
+     */
+    public function all(): array | null
     {
         $query = "SELECT * FROM {$this->table}";
         $result = $this->db->query($query);
-        $result =  $result->fetch_all(MYSQLI_ASSOC) ?? null;
-        return $result;
+        return $result->fetch_all(MYSQLI_ASSOC) ?? null;
     }
+
+    /**
+     *adds records from $data {key - field value - value}
+     * @param array $data
+     * @param string $types - bind_param($types, ...$values)
+     * @return bool
+     */
     public function add(array $data, string $types): bool
     {
         $fields = array_keys($data);
@@ -81,10 +81,33 @@ class AbstractDB
             return $result = $stmt->get_result();
         }
         return false;
-
-
-
     }
+
+    /**
+     * returns params by 2 fields from $this->>tableLike table
+     * @param string $fields
+     * @param mixed $value
+     * @param string $types
+     * @param string $opeator
+     * @return array|null
+     */
+    public function getWhere(string $fields, mixed $value, string $types,string $opeator = '='): array | null
+    {
+        $query = "SELECT * FROM {$this->table} WHERE {$fields}{$opeator}?;";
+        if ($stmt = mysqli_prepare($this->db, $query)) {
+            $stmt->bind_param($types, $value);
+            $stmt->execute();
+            return $stmt->get_result()->fetch_assoc();
+        }
+        return null;
+    }
+
+    /**
+     * adds like record
+     * @param array $data
+     * @return bool
+     * @throws \Exception
+     */
     public function _addLike(array $data): bool
     {
         $fields = array_keys($data);
@@ -98,17 +121,15 @@ class AbstractDB
         }
         return $result;
     }
-    public function getWhere(string $fields, mixed $value, string $types='i',string $opeator = '='): array | null
-    {
-        $query = "SELECT * FROM {$this->table} WHERE {$fields}{$opeator}?;";
-        if ($stmt = mysqli_prepare($this->db, $query)) {
-            $stmt->bind_param($types, $value);
-            $stmt->execute();
-            return $stmt->get_result()->fetch_assoc();
-        }
-        return null;
-    }
 
+    /**
+     * returns like by 2 fields from $this->>tableLike table
+     * @param string $fields1
+     * @param int $value1
+     * @param string $fields2
+     * @param int $value2
+     * @return array|null
+     */
     public function getWhereLike(string $fields1, int $value1, string $fields2, int $value2): array | null
     {
         $query = "SELECT * FROM {$this->tableLike} WHERE {$fields1}=? AND {$fields2}=?;";

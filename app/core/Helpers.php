@@ -19,6 +19,7 @@ class Helpers
 
         return $data;
     }
+
     /**
      * copying a file Photo from temp folder to folder images
      * @param string $path
@@ -34,16 +35,16 @@ class Helpers
         }
         if (!empty($photo['name'])) {
             $extension = pathinfo($photo['name'], PATHINFO_EXTENSION);
-            $uniqueName = 'route' . uniqid() . '.' . $extension;
-            $fileDir = ltrim($path, DIRECTORY_SEPARATOR);
+            $uniqueName = 'img_' . uniqid() . '.' . $extension;
+            $fileDir = str_replace('/', DIRECTORY_SEPARATOR, $path);
+            $fileDir = ltrim($fileDir, DIRECTORY_SEPARATOR);
             $file = $fileDir . DIRECTORY_SEPARATOR . $uniqueName;
-            var_dump('save ' . $file);
             if (!move_uploaded_file($photo['tmp_name'], $file)) {
                 $file = '';
                 throw new \Exception('Photo was not uploaded: ' . $file);
             }
             $file = DIRECTORY_SEPARATOR . $file;
-            var_dump('bd ' . $file);
+            $file = str_replace('\\', '/', $file);
         }
         return $file;
     }
@@ -51,7 +52,7 @@ class Helpers
 
     /**
      * deleting a file Photo from  folder images
-     * @param array $data
+     * @param string $file
      * @return void
      * @throws \Exception
      */

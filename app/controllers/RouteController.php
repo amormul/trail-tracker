@@ -7,9 +7,6 @@ use app\models\Route;
 
 class RouteController extends \app\core\AbstractController
 {
-    protected Route $route;
-    protected Session $session;
-
     public function __construct()
     {
         parent::__construct();
@@ -80,10 +77,15 @@ class RouteController extends \app\core\AbstractController
             $this->session->trip_id = $data['trip_id'];
             if (!empty($errors)) {
                 $this->session->errors_route = $errors;
-               \app\core\Route::redirect('/route/add_route');
+                \app\core\Route::redirect('/route/add_route');
             } else {
                 try {
-                    $this->model_route->create($data);
+                    $route = $this->model_route->getWhere('trip_id', 'user_id', 'i');
+                    if (empty($route)) {
+                        $this->model_route->create($data);
+                    } else {
+                        $this->model_route->update($data);
+                    }
                 } catch (Exception $e) {
                     $this->outputException($e->getMessage());
                 }
@@ -98,8 +100,9 @@ class RouteController extends \app\core\AbstractController
      */
     public function edit_route(): void
     {
+//        $trip_id = filter_input(INPUT_POST, 'trip_id',FILTER_VALIDATE_INT);
         $trip_id = filter_input(INPUT_GET, 'trip_id',FILTER_VALIDATE_INT);
-        $route = $this->model_route->getByTripId($trip_id);
+        $route = $this->model_route->getRouteByTripId($trip_id);
         if (empty($route)) {
             $route['trip_id'] = $trip_id;
         }
@@ -108,10 +111,13 @@ class RouteController extends \app\core\AbstractController
             $route['photo'] = "/images/add.png";
             $exist_photo = false;
         }
+        $errors = $this->session->errors_route ?? [];
+        $this->session->remote('errors_route');
         $this->view->render('update_route', [
             'title' => 'Update Route',
             'route' => $route,
             'exist_photo' => $exist_photo,
+            'errors' => $errors,
         ]);
     }
     /**
@@ -133,7 +139,7 @@ class RouteController extends \app\core\AbstractController
                 \app\core\Route::redirect('/route/edit_route');
             } else {
                 try {
-                    $route = $this->model_route->getByTripId($data['trip_id']);
+                    $route = $this->model_route->getRouteByTripId($data['trip_id']);
                     if (empty($route)) {
                         $this->model_route->create($data);
                     }else {
@@ -158,9 +164,13 @@ class RouteController extends \app\core\AbstractController
         if (!$res){
             $this->outputException('Missing from the database trip ' .  $trip_id);
         }else {
+            if (empty($this->login)) {
+                $this->session->errors_route = 'User not found';
+                \app\core\Route::redirect('/index/show');
+            }
             $user = $this->model_user->getByLogin($this->login);
             $user_id = $user['id'];
-            $route = $this->model_route->getByTripId($trip_id);
+            $route = $this->model_route->getRouteByTripId($trip_id);
             $this->session->trip_id = $trip_id;
             try {
                 $res = $this->model_route->like($route['id'], $user_id);

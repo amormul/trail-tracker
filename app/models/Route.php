@@ -10,16 +10,16 @@ class Route extends \app\core\AbstractDB
     private string $file = '';
     protected $table = 'routes';
     protected $tableLike = 'likes_route';
-
     /**
      * returns route parameters by trip identifier
-     * @param int $id
+     * @param int $trip_id
      * @return array|null
      */
-    public function getByTripId(int $id) : array | null
+    public function getRouteByTripId(int $trip_id): array | null
     {
-        return $this->getWhere('trip_id', $id);
+        return $this->getById($this->table, 'trip_id', $trip_id);
     }
+
     /**
      * creates route
      * @param array $data
@@ -93,14 +93,15 @@ class Route extends \app\core\AbstractDB
     {
         $like = $this->getWhereLike('route_id',$route_id,'user_id',$user_id);
         if (empty($like)) {
-            return $this->_addLike([
-                "route_id" => $route_id,
-                "user_id" => $user_id,
-            ]);
-        }
+                return $this->_addLike([
+                    "route_id" => $route_id,
+                    "user_id" => $user_id,
+                ]);
+            }
         return $this->_deleteLike('route_id',$route_id,
             'user_id', $user_id );
     }
+
     /**
      * returns the number of likes in the route
      * @param int $id
@@ -117,6 +118,7 @@ class Route extends \app\core\AbstractDB
             /* выполнение запроса */
             $stmt->execute();
             $res = $stmt->get_result()->fetch_assoc();
+            var_dump($res);
             /* Связываем переменные результата */
             $count = $res["count"];
         }

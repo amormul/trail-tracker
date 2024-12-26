@@ -31,6 +31,7 @@ class IndexController extends AbstractController
         parent::__construct();
         $this->model = new Trip();
         $this->validator = new TripValidator();
+        $this->loadModel('route');
     }
     /**
      * Display all trips.
@@ -39,7 +40,7 @@ class IndexController extends AbstractController
      */
     public function index(): void
     {
-        $trips = $this->enrichTrips($this->model->getAll());
+        $trips = $this->enrichTrips($this->model->all());
         $this->view->render('index', [
             'title' => 'All trips',
             'trips' => $trips,
@@ -56,11 +57,14 @@ class IndexController extends AbstractController
     {
         $tripId = $this->getTripIdFromRequest();
         $trip = $this->getEnrichedTrip($tripId);
-
+        $route = $this->model_route->getRouteByTripId($tripId) ?? null;
+        $likes_route = $this->model_route->countLikes( $route['id']) ?? 0;
         $this->view->render('trip', [
             'title' => 'Trip page',
             'login' => $this->login,
             'trip' => $trip,
+            'route' => $route,
+            'likes_route' => $likes_route,
             'inventories' => $this->getEnrichedInventory($this->model->getInventoryByTrip($tripId))
         ]);
     }
@@ -260,7 +264,7 @@ class IndexController extends AbstractController
     private function renderForm(string $view, string $title, ?int $tripId = null): void
     {
         $errors = $this->session->errors ?? [];
-        $old = $this->session->old ?? ($tripId ? $this->model->getById($tripId) : []);
+        $old = $this->session->old ?? ($tripId ? $this->model->getById('trips', 'id', $tripId) : []);
 
         $currentInventory = $tripId ? $this->getEnrichedInventory($this->model->getInventoryByTrip($tripId)) : [];
         $currentInventoryIds = array_column($currentInventory, 'id');
@@ -298,7 +302,7 @@ class IndexController extends AbstractController
             return Helpers::savePhoto($this->fileDir, $_FILES['photo']);
         }
 
-        return $this->model->getById($data['id'])['photo'];
+        return $this->model->getById('trips', 'id', $data['id'])['photo'];
     }
 
     /**
@@ -327,7 +331,7 @@ class IndexController extends AbstractController
      */
     private function getEnrichedTrip(int $tripId): array
     {
-        $trip = $this->model->getById($tripId);
+        $trip = $this->model->getById('trips', 'id', $tripId);
         if (!$trip) {
             throw new RuntimeException('Trip not found.');
         }
@@ -345,7 +349,7 @@ class IndexController extends AbstractController
         if (!$inventoryIds) return [];
 
         return array_filter(array_map(function ($id) {
-            return $this->model->getTableById('inventory',$id);
+            return $this->model->getById('inventory', 'id', $id);
         }, $inventoryIds));
     }
 

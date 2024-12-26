@@ -116,7 +116,7 @@ class RouteValidators
             return false;
         }
         $model = new Trip();
-        $trip = $model->getById($trip_id);
+        $trip = $model->getById('trips','id', $trip_id);
         if (empty($trip)){
             return false;
         }

@@ -41,18 +41,16 @@ class GalleryController extends AbstractController
         $userId = $this->getCurrentUserId();
         $tripId = filter_input(INPUT_POST, 'trip_id', FILTER_VALIDATE_INT);
         $comment = filter_input(INPUT_POST, 'comment');
-        $uploadDir = $_SERVER['DOCUMENT_ROOT'] . '/storage/imageGallery/';
-        if (!is_dir($uploadDir)) {
-            mkdir($uploadDir, 0777, true);
-        }
         $file = $_FILES['file'];
-        $newFileName = 'photo_' . uniqid() . '.' . pathinfo($file['name'], PATHINFO_EXTENSION);
-        $filePath = $uploadDir . $newFileName;
-        if (!move_uploaded_file($file['tmp_name'], $filePath)) {
+        $uploadDir = $_SERVER['DOCUMENT_ROOT'] . '/storage/imageGallery/';
+
+        $relativePath = $this->handleFileUpload($file, $uploadDir);
+
+        if (!$relativePath) {
             $this->view->render('error', ['message' => 'File upload failed.']);
             return;
         }
-        $relativePath = '/storage/imageGallery/' . $newFileName;
+
         $this->gallery->create($userId, $relativePath, $tripId, $comment);
         Route::redirect('/index/show?trip_id=' . $tripId);
     }
@@ -120,14 +118,8 @@ class GalleryController extends AbstractController
         $photoPath = $photo['photo'];
         if ($file && $file['error'] === UPLOAD_ERR_OK) {
             $uploadDir = $_SERVER['DOCUMENT_ROOT'] . '/storage/imageGallery/';
-            $newFileName = 'photo_' . uniqid() . '.' . pathinfo($file['name'], PATHINFO_EXTENSION);
-            $uploadFile = $uploadDir . $newFileName;
-            if ($photoPath && file_exists($_SERVER['DOCUMENT_ROOT'] . $photoPath)) {
-                unlink($_SERVER['DOCUMENT_ROOT'] . $photoPath);
-            }
-            if (move_uploaded_file($file['tmp_name'], $uploadFile)) {
-                $photoPath = '/storage/imageGallery/' . $newFileName;
-            } else {
+            $photoPath = $this->handleFileUpload($file, $uploadDir, $photoPath);
+            if (!$photoPath) {
                 $this->view->render('error', ['message' => 'Failed to upload new photo.']);
                 return;
             }
@@ -154,5 +146,38 @@ class GalleryController extends AbstractController
             $this->gallery->deleteLike($photoId, $userId);
         }
         Route::redirect($_SERVER['HTTP_REFERER'] ?? '/index/index');
+    }
+
+    /**
+     * create directory if such does not exist
+     * @param string $uploadDir
+     * @return void
+     */
+    private function ensureUploadDir(string $uploadDir): void
+    {
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0777, true);
+        }
+    }
+
+    /**
+     * for uploading or edit photos
+     * @param array $file
+     * @param string $uploadDir
+     * @param string|null $oldFilePath
+     * @return string|null
+     */
+    private function handleFileUpload(array $file, string $uploadDir, string $oldFilePath = null): ?string
+    {
+        $this->ensureUploadDir($uploadDir);
+        $newFileName = 'photo_' . uniqid() . '.' . pathinfo($file['name'], PATHINFO_EXTENSION);
+        $filePath = $uploadDir . $newFileName;
+        if ($oldFilePath && file_exists($_SERVER['DOCUMENT_ROOT'] . $oldFilePath)) {
+            unlink($_SERVER['DOCUMENT_ROOT'] . $oldFilePath);
+        }
+        if (!move_uploaded_file($file['tmp_name'], $filePath)) {
+            return null;
+        }
+        return '/storage/imageGallery/' . $newFileName;
     }
 }

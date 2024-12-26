@@ -22,16 +22,18 @@
                     <!-- Buttons Split Across the Row -->
                     <div class="d-flex justify-content-between mb-3 align-items-center">
                         <a href="<?= \app\core\Route::url() ?>" class="btn btn-primary btn-sm">Back</a>
-                        <div class="d-flex align-items-center">
-                            <form action="<?= app\core\Route::url('index', 'edit') ?>" method="post">
-                                <input type="hidden" name="trip_id" value="<?= $trip['id'] ?>">
-                                <input type="submit" class="btn btn-primary btn-sm mr-3" value="Edit">
-                            </form>
-                            <form action="<?= app\core\Route::url('index', 'delete') ?>" method="post">
-                                <input type="hidden" name="trip_id" value="<?= $trip['id'] ?>">
-                                <input type="submit" class="btn btn-danger btn-sm" value="Delete">
-                            </form>
-                        </div>
+                        <?php if ($login && $isAuthor): ?>
+                            <div class="d-flex align-items-center">
+                                <form action="<?= app\core\Route::url('index', 'edit') ?>" method="post">
+                                    <input type="hidden" name="trip_id" value="<?= $trip['id'] ?>">
+                                    <input type="submit" class="btn btn-primary btn-sm mr-3" value="Edit">
+                                </form>
+                                <form action="<?= app\core\Route::url('index', 'delete') ?>" method="post">
+                                    <input type="hidden" name="trip_id" value="<?= $trip['id'] ?>">
+                                    <input type="submit" class="btn btn-danger btn-sm" value="Delete">
+                                </form>
+                            </div>
+                        <?php endif; ?>
                     </div>
 
                     <!-- Hike Properties -->
@@ -76,7 +78,9 @@
                                     <tr>
                                         <th>Photo</th>
                                         <th>Item</th>
-                                        <th>Action</th>
+                                        <?php if ($login && $isAuthor): ?>
+                                            <th>Action</th>
+                                        <?php endif; ?>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -92,13 +96,15 @@
                                                     alt="<?= $inventory['name'] ?>" />
                                             </td>
                                             <td class="align-middle"><?= $inventory['name'] ?></td>
-                                            <td class="align-middle">
-                                                <form action="<?= app\core\Route::url('index', 'deleteInventory') ?>" method="post">
-                                                    <input type="hidden" name="inventory_id" value="<?= $inventory['id'] ?>">
-                                                    <input type="hidden" name="trip_id" value="<?= $trip['id'] ?>">
-                                                    <input type="submit" class="btn btn-danger btn-sm mt-2" value="Delete">
-                                                </form>
-                                            </td>
+                                            <?php if ($login && $isAuthor): ?>
+                                                <td class="align-middle">
+                                                    <form action="<?= app\core\Route::url('index', 'deleteInventory') ?>" method="post">
+                                                        <input type="hidden" name="inventory_id" value="<?= $inventory['id'] ?>">
+                                                        <input type="hidden" name="trip_id" value="<?= $trip['id'] ?>">
+                                                        <input type="submit" class="btn btn-danger btn-sm mt-2" value="Delete">
+                                                    </form>
+                                                </td>
+                                            <?php endif; ?>
                                         </tr>
                                     <?php endforeach; ?>
                                 </tbody>
@@ -108,7 +114,7 @@
                         <!-- Route Section -->
                         <?php if (!$route): ?>
                             <div class="d-flex flex-column align-items-center">
-                                <p class="font-weight-bold text-center">No route yet</p>
+                                <p class="font-weight-bold text-center mt-4">No route yet</p>
                                 <form action="<?= app\core\Route::url('route', 'add_route') ?>" method="post">
                                     <input type="hidden" name="trip_id" value="<?= $trip['id'] ?>">
                                     <input type="submit" class="btn btn-primary btn-sm" value="Add route">
@@ -116,15 +122,17 @@
                             </div>
                         <?php else: ?>
                             <p class="mt-5"><strong>Route: <?= $route['description'] ?></strong></p>
-                            <div class="row d-flex align-items-center">
-                                <div class="col-12">
-                                    <form action="<?= app\core\Route::url('route', 'edit_route') ?>"
-                                        method="post">
-                                        <input type="hidden" name="trip_id" value="<?= $trip['id'] ?>">
-                                        <input type="submit" class="btn btn-primary btn-sm" value="Edit route">
-                                    </form>
+                            <?php if ($login && $isAuthor): ?>
+                                <div class="row d-flex align-items-center">
+                                    <div class="col-12">
+                                        <form action="<?= app\core\Route::url('route', 'edit_route') ?>"
+                                            method="post">
+                                            <input type="hidden" name="trip_id" value="<?= $trip['id'] ?>">
+                                            <input type="submit" class="btn btn-primary btn-sm" value="Edit route">
+                                        </form>
+                                    </div>
                                 </div>
-                            </div>
+                            <?php endif; ?>
                             <div class="travel-map text-center">
                                 <img src="<?= $route['photo'] ?>" alt="<?= $route['photo'] ?>" class="photo-route rounded">
                             </div>

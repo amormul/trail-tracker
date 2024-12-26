@@ -5,7 +5,6 @@ namespace app\controllers;
 use app\core\AbstractController;
 use app\core\Helpers;
 use app\core\Route;
-use app\core\Session;
 use app\models\Inventory;
 use app\models\Trip;
 use RuntimeException;
@@ -56,14 +55,19 @@ class IndexController extends AbstractController
     public function show(): void
     {
         $tripId = $this->getTripIdFromRequest();
+        if (!$tripId) {
+            throw new RuntimeException('Trip not found');
+        }
         $trip = $this->getEnrichedTrip($tripId);
         $route = $this->model_route->getRouteByTripId($tripId);
         if ($route) {
             $likes_route = $this->model_route->countLikes($route['id']) ?? 0;
         }
+        $isAuthor = $this->isAuthor($tripId);
         $this->view->render('trip', [
             'title' => 'Trip page',
             'login' => $this->login,
+            'isAuthor' => $isAuthor,
             'trip' => $trip,
             'route' => $route,
             'likes_route' => $likes_route,
@@ -78,6 +82,9 @@ class IndexController extends AbstractController
      */
     public function create(): void
     {
+        if (!$this->getCurrentUserId()) {
+            Route::redirect('/user/login');
+        }
         $this->renderForm('add_trip', 'Create trip');
     }
 
@@ -88,6 +95,9 @@ class IndexController extends AbstractController
      */
     public function store(): void
     {
+        if (!$this->getCurrentUserId()) {
+            Route::redirect('/user/login');
+        }
         $data = Helpers::getPostData($this->fields);
         $inventory = filter_input(INPUT_POST, 'inventory', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
         $errors = $this->validator->validate($data);
@@ -118,7 +128,13 @@ class IndexController extends AbstractController
      */
     public function edit(): void
     {
+        if (!$this->getCurrentUserId()) {
+            Route::redirect('/user/login');
+        }
         $tripId =  $this->getTripIdFromRequest();
+        if (!$this->isAuthor($tripId)) {
+            Route::redirect('/index/index');
+        }
         $this->session->trip_id = $tripId;
         $this->renderForm('edit_trip', 'Edit trip', $tripId);
     }
@@ -130,8 +146,14 @@ class IndexController extends AbstractController
      */
     public function update(): void
     {
+        if (!$this->getCurrentUserId()) {
+            Route::redirect('/user/login');
+        }
         $data = Helpers::getPostData($this->fields);
         $data['id'] = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
+        if (!$this->isAuthor($data['id'])) {
+            Route::redirect('/index/index');
+        }
         $inventory = filter_input(INPUT_POST, 'inventory', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
         $errors = $this->validator->validate($data);
 
@@ -142,7 +164,7 @@ class IndexController extends AbstractController
         }
 
         $data['photo'] = $this->processPhotoUpload($data);
-        $data['user_id'] = $this->model->getById('trips', 'id', $data['id']);
+        $data['user_id'] = $this->model->getById('trips', 'id', $data['id'])['user_id'];
 
         $this->model->update($data);
         $this->storeTripInventory($data['id'], $inventory);
@@ -159,6 +181,12 @@ class IndexController extends AbstractController
     public function delete(): void
     {
         $tripId = $this->getTripIdFromRequest();
+        if (!$this->getCurrentUserId()) {
+            Route::redirect('/user/login');
+        }
+        if (!$this->isAuthor($tripId)) {
+            Route::redirect('/index/index');
+        }
         $oldPhoto = $this->model->getById('trips', 'id', $tripId)['photo'];
 
         if (!$this->model->delete($tripId)) {
@@ -177,12 +205,20 @@ class IndexController extends AbstractController
     public function like(): void
     {
         $tripId = $this->getTripIdFromRequest();
+        $this->session->trip_id = $tripId;
+
+        if (!$this->getCurrentUserId()) {
+            Route::redirect('/user/login');
+        }
+
         if ($tripId) {
             $this->model->checkLike($tripId, $this->getCurrentUserId())
                 ? $this->model->addLike($tripId, $this->getCurrentUserId())
                 : $this->model->deleteLike($tripId, $this->getCurrentUserId());
+        } else {
+            throw new RuntimeException('Trip not found');
         }
-        $this->session->trip_id = $tripId;
+
         Route::redirect($_SERVER['HTTP_REFERER'] ?? '/index/index');
     }
 
@@ -207,8 +243,15 @@ class IndexController extends AbstractController
 
     public function deleteInventory(): void
     {
+        if (!$this->getCurrentUserId()) {
+            Route::redirect('/user/login');
+        }
+
         $inventoryId = filter_input(INPUT_POST, 'inventory_id', FILTER_VALIDATE_INT);
         $tripId = filter_input(INPUT_POST, 'trip_id', FILTER_VALIDATE_INT);
+        if (!$this->isAuthor($tripId)) {
+            Route::redirect('/index/index');
+        }
         $this->model->deleteTripInventory($tripId, $inventoryId);
         $this->session->trip_id = $tripId;
         Route::redirect('/index/show');
@@ -221,6 +264,9 @@ class IndexController extends AbstractController
      */
     public function addStatus(): void
     {
+        if (!$this->getCurrentUserId()) {
+            Route::redirect('/user/login');
+        }
         $data['name'] = filter_input(INPUT_POST, 'name', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
         if (!$this->model->createStatus($data)) {
             throw new RuntimeException('Status not created');
@@ -236,6 +282,9 @@ class IndexController extends AbstractController
      */
     public function addDifficulty(): void
     {
+        if (!$this->getCurrentUserId()) {
+            Route::redirect('/user/login');
+        }
         $data['name'] = filter_input(INPUT_POST, 'name', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
         $data['description'] = filter_input(INPUT_POST, 'description', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
         if (!$this->model->createDifficult($data)) {

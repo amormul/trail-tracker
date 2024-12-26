@@ -24,7 +24,7 @@ abstract class AbstractController
      * @return void
      * @throws \Exception
      */
-    protected function loadModel(string $name) : void
+    protected function loadModel(string $name): void
     {
         $modelClass = 'app\models\\' . ucfirst($name);
         if (!class_exists($modelClass)) {
@@ -37,7 +37,7 @@ abstract class AbstractController
     {
         $params = explode('_', $name);
         $getterName = 'get_' . ucfirst($params[0]);
-        if(method_exists($this, $getterName)) {
+        if (method_exists($this, $getterName)) {
             return $this->$getterName($params[1]);
         }
         return null;
@@ -47,18 +47,32 @@ abstract class AbstractController
      * @param string $name
      * @return object|null
      */
-    protected function get_model(string $name) : ?object
+    protected function get_model(string $name): ?object
     {
-        if(isset($this->models[$name])) {
+        if (isset($this->models[$name])) {
             return $this->models[$name];
         }
         return null;
     }
+
+    /**
+     * Get id of logged in user
+     * @return int
+     */
     public function getCurrentUserId(): int
     {
         $userModel = new User();
-        $user = $userModel->getByLogin($this->login);
+        $user = $userModel->getByLogin($this->login ?? '');
         return (int)$user['id'];
     }
 
+    /**
+     * Check if the logged user is author
+     * @param int $tripId
+     * @return bool
+     */
+    public function isAuthor(int $tripId): bool
+    {
+        return $this->getCurrentUserId() === $this->model->getById('trips', 'id', $tripId)['user_id'];
+    }
 }

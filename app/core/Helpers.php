@@ -26,22 +26,24 @@ class Helpers
      * @return string
      * @throws \Exception
      */
-    public static function savePhoto(string $path, array $photo = null): string
+    public static function savePhoto(string $path, array $photo=null): string
     {
         $file = '';
-        if (empty($photo)) {
+        if(empty($photo)){
             return $file;
         }
         if (!empty($photo['name'])) {
             $extension = pathinfo($photo['name'], PATHINFO_EXTENSION);
-            $uniqueName = uniqid() . '.' . $extension;
+            $uniqueName = 'route' . uniqid() . '.' . $extension;
             $fileDir = ltrim($path, DIRECTORY_SEPARATOR);
             $file = $fileDir . DIRECTORY_SEPARATOR . $uniqueName;
+            var_dump('save ' . $file);
             if (!move_uploaded_file($photo['tmp_name'], $file)) {
                 $file = '';
                 throw new \Exception('Photo was not uploaded: ' . $file);
             }
             $file = DIRECTORY_SEPARATOR . $file;
+            var_dump('bd ' . $file);
         }
         return $file;
     }
@@ -55,11 +57,13 @@ class Helpers
      */
     public static function deletePhoto(string $file): void
     {
-        if (!empty($file)) {
-            $fileDir = ltrim($file, DIRECTORY_SEPARATOR);
+        if(!empty($file)) {
+            $fileDir = str_replace('/', DIRECTORY_SEPARATOR, $file);
+            $fileDir = ltrim($fileDir, DIRECTORY_SEPARATOR);
             if (!unlink($fileDir)) {
-                throw new \Exception('Photo was not deleted: ' . $file);
+                throw new \Exception('Photo was not deleted: ' . $fileDir);
             }
         }
     }
+
 }

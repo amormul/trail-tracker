@@ -2,6 +2,8 @@
 
 namespace app\core;
 
+use app\models\Trip;
+
 class RouteValidators
 {
     const  PHOTO_MAX_SIZE = 5242880;//5 * 1024 * 1024; //5Mb
@@ -27,58 +29,20 @@ class RouteValidators
         2 => ' has incorrect format. Allowed formats: jpg, jpeg, png, bmp',
         3 => ' more than max file size - 2 Mb.'
     ];
-
-    /**
-     * Checking for the presence of the transferred file
-     * @param array $file
+    /**check value size $min ... $max
+     * @param $value
+     * @param $min
+     * @param $max
      * @return bool
      */
-    protected static function isNoFile(array $file): bool
+    protected static function isSizeValid( $value, $min, $max ):bool
     {
-        if ($file['error'] === UPLOAD_ERR_NO_FILE && $file['name'] === '') {
-            return true;
+        if(!empty($value)) {
+            $len = strlen($value);
+            return $len >= $min && $len <= $max;
+        }else{
+            return false;
         }
-        return false;
-    }
-
-    /**
-     * Checking if the file has been downloaded
-     * @param array $file
-     * @return string|null
-     */
-    protected static function isNoFileError(array $file): string | null
-    {
-        if ($file['error'] !== UPLOAD_ERR_OK) {
-            return $file['name'] . '  ' . self::UPLOAD_ERROR_MESSAGES[$file['error']];
-        }
-        return null;
-    }
-
-    /**
-     * Check if the file is of an allowed type mime
-     * @param array $file
-     * @return string|null
-     */
-    protected static function checkTypePhoto(array $file): string | null
-    {
-        if (!in_array($file['type'], self::PHOTO_AVAILABLE_TYPES)) {
-            return $file['name'] . ' ' . $file['type'] .'  ' . self::ERROR_MESSAGES[2];
-        }
-        return null;
-    }
-
-    /**
-     * Check size of the file
-     * @param array $file
-     * @param int $maxFileSize
-     * @return string|null
-     */
-    protected static function checkSizePhoto(array $file, int $maxFileSize): string | null
-    {
-        if ($file['size'] > $maxFileSize){
-            return $file['name'] . ' ' . $file['size'] . '  ' . self::ERROR_MESSAGES[3];
-        }
-        return null;
     }
 
     /**
@@ -89,24 +53,27 @@ class RouteValidators
      */
     protected static function validatePhoto(array $photo=null, bool $isFileNull = false): string | null
     {
-        if(empty($photo)){
-            return null;
+        if (empty($photo))
+        {
+            return 'An error occurred, the file was not loaded';
         }
-        if (self::isNoFile($photo ) && $isFileNull){
-            return null;
+        if ($photo['error'] === UPLOAD_ERR_NO_FILE) {
+            if ($photo['name'] === '' && $isFileNull) {
+                return null;
+            } else {
+                return self::UPLOAD_ERROR_MESSAGES[$photo['error']];
+            }
+        }
+        $error = $photo['name'] . '  ' ;
+        if ($photo['error'] !== UPLOAD_ERR_OK) {
+            return $error . self::UPLOAD_ERROR_MESSAGES[$photo['error']];
         }
 
-        $res = self::isNoFileError($photo );
-        if(!empty($res)){
-            return  $res;
+        if (!in_array($photo['type'], self::PHOTO_AVAILABLE_TYPES)) {
+            return $error . $photo['type'] .'  ' . self::ERROR_MESSAGES[2];
         }
-        $res = self::checkTypePhoto($photo);
-        if(!empty($res)){
-            return  $res;
-        }
-        $res = self::checkSizePhoto($photo, self::PHOTO_MAX_SIZE);
-        if(!empty($res)) {
-            return  $res;
+        if ($photo['size'] > self::PHOTO_MAX_SIZE){
+            return  $error . $photo['size'] . '  ' . self::ERROR_MESSAGES[3];
         }
         return null;
     }
@@ -116,16 +83,44 @@ class RouteValidators
      * @param array $data
      * @return array
      */
-    public static function validateRoute(array $data): array
+    public static function validateRoute(array &$data): array
     {
         $errors = [];
         $res = self::validatePhoto($data['photo'], true);
         if(!empty($res)) {
             $errors[] = $res;
         }
-
+        $data['description'] = $data['description'] ?? '';
+        if (empty($data['description'])) {
+            $errors[] = 'Description missing';
+        }else{
+            $data['description'] = trim($data['description']);
+            $data['description'] = strip_tags($data['description']);
+            $data['description'] = stripcslashes($data['description']);
+            $data['description'] = htmlspecialchars($data['description']);
+            if ( !self::isSizeValid($data['description'], 15, 400)){
+                $errors[] = 'The description does not match the sizes';
+            }
+        }
         return $errors;
     }
 
+    /**
+     * Checking if a trip is in the database
+     * @param mixed $trip_id
+     * @return bool
+     */
+    public static function validateTrip(mixed $trip_id): bool
+    {
+        if (!is_numeric($trip_id)){
+            return false;
+        }
+        $model = new Trip();
+        $trip = $model->getById($trip_id);
+        if (empty($trip)){
+            return false;
+        }
+        return true;
+    }
 
 }

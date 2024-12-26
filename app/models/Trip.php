@@ -4,19 +4,21 @@ namespace app\models;
 
 class Trip extends \app\core\AbstractDB
 {
-    /**
-     * Returns all records from the "trips" table.
-     * @return array|null List of trips or null if no records found.
-     */
-    public function getAll()
-    {
-        $query = "SELECT * FROM trips";
-        $result = $this->db->query($query);
-        $data = $result->fetch_all(MYSQLI_ASSOC);
-        $result->free();
-
-        return $data ?: null;
-    }
+    protected $table = 'trips';
+    protected $tableLike = 'likes_trip';
+//    /**
+//     * Returns all records from the "trips" table.
+//     * @return array|null List of trips or null if no records found.
+//     */
+//    public function getAll()
+//    {
+//        $query = "SELECT * FROM trips";
+//        $result = $this->db->query($query);
+//        $data = $result->fetch_all(MYSQLI_ASSOC);
+//        $result->free();
+//
+//        return $data ?: null;
+//    }
 
     /**
      * Creates a new trip record in the "trips" table.

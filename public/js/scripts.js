@@ -20,6 +20,7 @@ function setupSelect2(selector, placeholder) {
 function setupPhotoInput(config) {
   const {
     inputId,
+    inputIdCurrentPhoto,
     previewId,
     fileNameId,
     clearButtonId,
@@ -30,8 +31,8 @@ function setupPhotoInput(config) {
   const previewImage = document.getElementById(previewId);
   const fileName = document.getElementById(fileNameId);
   const clearButton = document.getElementById(clearButtonId);
-
-  if (!fileInput || !fileInput) {
+  const fileInputCurrent = document.getElementById(inputIdCurrentPhoto);
+  if (!fileInput || !clearButton) {
     return;
   }
 
@@ -56,6 +57,9 @@ function setupPhotoInput(config) {
       </span>`;
     fileName.textContent = "";
     clearButton.classList.add("d-none");
+    if(fileInputCurrent){
+      fileInputCurrent.value="";
+    }
   });
 }
 
@@ -67,6 +71,7 @@ function initializeApp() {
   const photoInputConfigs = [
     {
       inputId: "coverPhoto",
+      inputIdCurrentPhoto: "coverCurrentPhoto",
       previewId: "coverPhotoPreview",
       fileNameId: "coverPhotoName",
       clearButtonId: "coverPhotoClear",
@@ -74,6 +79,7 @@ function initializeApp() {
     },
     {
       inputId: "travelPathPhoto",
+      inputIdCurrentPhoto: "travelCurrentPhoto",
       previewId: "travelPathPreview",
       fileNameId: "travelPathName",
       clearButtonId: "travelPathClear",

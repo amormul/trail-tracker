@@ -45,6 +45,6 @@ if (conf('DEBUG') === 'true') {
         \app\core\Logs::write($e->getMessage());
         //    показати сторінку що щось пішло не так
         $view = new \app\core\View();
-        $view->render('error', ['title' => 'oops', 'message' => $e->getMessage()]);
+        $view->render('error', ['title' => 'oops', 'message' => ' boorstrap '.  $e->getMessage()]);
     }
 }

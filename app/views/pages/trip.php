@@ -118,7 +118,15 @@
                         <?php else: ?>
                             <p class="text-center font-weight-bold">Route: <?= $route['description'] ?></p>
                             <div class="travel-map text-center">
-                                <span class="text-secondary font-weight-bold"><?= $route['photo'] ?></span>
+                                    <img src="<?= $route['photo'] ?>" alt="alt" class="photo-route rounded">
+                            </div>
+                            <!-- Likes -->
+                            <div class="d-flex justify-content-between mt-2">
+                                <form action="<?= app\core\Route::url('route', 'like') ?>" method="post">
+                                    <input type="hidden" name="trip_id" value="<?= $trip['id'] ?>">
+                                    <input type="submit" class="btn btn-outline-danger btn-sm" value="&#x2764;">
+                                </form>
+                                <span><?= $likes_route ?> Likes</span>
                             </div>
                         <?php endif; ?>
 

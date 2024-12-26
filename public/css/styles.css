@@ -67,3 +67,8 @@
 .clear-btn {
     flex-shrink: 0;
 }
+
+.photo-route{
+    max-height: 100%;
+    width: auto;
+}

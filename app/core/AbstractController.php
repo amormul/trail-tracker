@@ -54,5 +54,11 @@ abstract class AbstractController
         }
         return null;
     }
+    public function getCurrentUserId(): int
+    {
+        $userModel = new User();
+        $user = $userModel->getByLogin($this->login);
+        return (int)$user['id'];
+    }
 
 }

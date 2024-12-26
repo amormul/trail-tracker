@@ -36,6 +36,7 @@ class AbstractDB
     public function getById(int $id): array | null
     {
         $query = "SELECT * FROM {$this->table} WHERE id = ?;";
+        var_dump($query);
         if ($stmt = mysqli_prepare($this->db, $query)) {
             $stmt->bind_param("i", $id);
             $stmt->execute();

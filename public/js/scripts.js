@@ -79,6 +79,13 @@ function initializeApp() {
       clearButtonId: "travelPathClear",
       placeholderImage: "/images/add.png",
     },
+    {
+      inputId: "photoFile",
+      previewId: "photoPreview",
+      fileNameId: "photoName",
+      clearButtonId: "photoClear",
+      placeholderImage: "/images/add.png",
+    },
   ];
 
   photoInputConfigs.forEach(setupPhotoInput);

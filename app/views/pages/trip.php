@@ -1,5 +1,5 @@
 <div class="container mt-5 pt-4 mb-5">
-    <div class="row">
+    <div class="row mb-5">
         <div class="col-12 bg-light shadow rounded py-4 px-4">
             <div class="row">
                 <!-- Left Photo Section -->
@@ -20,7 +20,7 @@
                 <!-- Right Content Section -->
                 <div class="col-md-9">
                     <!-- Buttons Split Across the Row -->
-                    <div class="d-flex justify-content-between mb-3">
+                    <div class="d-flex justify-content-between mb-3 align-items-center">
                         <a href="<?= \app\core\Route::url() ?>" class="btn btn-primary btn-sm">Back</a>
                         <div class="d-flex align-items-center">
                             <form action="<?= app\core\Route::url('index', 'edit') ?>" method="post">
@@ -96,7 +96,7 @@
                                                 <form action="<?= app\core\Route::url('index', 'deleteInventory') ?>" method="post">
                                                     <input type="hidden" name="inventory_id" value="<?= $inventory['id'] ?>">
                                                     <input type="hidden" name="trip_id" value="<?= $trip['id'] ?>">
-                                                    <input type="submit" class="btn btn-danger btn-sm" value="Delete">
+                                                    <input type="submit" class="btn btn-danger btn-sm mt-2" value="Delete">
                                                 </form>
                                             </td>
                                         </tr>
@@ -106,7 +106,6 @@
                         <?php endif; ?>
 
                         <!-- Route Section -->
-                        <p class="mt-4"><strong>Route:</strong></p>
                         <?php if (!$route): ?>
                             <div class="d-flex flex-column align-items-center">
                                 <p class="font-weight-bold text-center">No route yet</p>
@@ -116,13 +115,15 @@
                                 </form>
                             </div>
                         <?php else: ?>
-                            <p class="text-center font-weight-bold">Route path: <?= $route['description'] ?></p>
-                            <div class="d-flex flex-column align-items-center">
-                                <form action="<?= app\core\Route::url('route', 'edit_route') ?>"
-                                    method="post">
-                                    <input type="hidden" name="trip_id" value="<?= $trip['id'] ?>">
-                                    <input type="submit" class="btn btn-primary" value="Edit route">
-                                </form>
+                            <p class="mt-5"><strong>Route: <?= $route['description'] ?></strong></p>
+                            <div class="row d-flex align-items-center">
+                                <div class="col-12">
+                                    <form action="<?= app\core\Route::url('route', 'edit_route') ?>"
+                                        method="post">
+                                        <input type="hidden" name="trip_id" value="<?= $trip['id'] ?>">
+                                        <input type="submit" class="btn btn-primary btn-sm" value="Edit route">
+                                    </form>
+                                </div>
                             </div>
                             <div class="travel-map text-center">
                                 <img src="<?= $route['photo'] ?>" alt="<?= $route['photo'] ?>" class="photo-route rounded">
@@ -144,7 +145,7 @@
                                 <p class="font-weight-bold text-center">No photos available</p>
                                 <form action="<?= app\core\Route::url('gallery', 'add') ?>" method="post">
                                     <input type="hidden" name="trip_id" value="<?= $trip['id'] ?>">
-                                    <input type="submit" class="btn btn-primary btn-sm" value="Add photo">
+                                    <input type="submit" class="btn btn-primary btn-sm mb-5" value="Add photo">
                                 </form>
                             </div>
                         <?php else: ?>

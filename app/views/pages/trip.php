@@ -116,11 +116,18 @@
                                 </form>
                             </div>
                         <?php else: ?>
-                            <p class="text-center font-weight-bold">Route: <?= $route['description'] ?></p>
-                            <div class="travel-map text-center">
-                                    <img src="<?= $route['photo'] ?>" alt="<?= $route['photo'] ?>" class="photo-route rounded">
+                            <p class="text-center font-weight-bold">Route path: <?= $route['description'] ?></p>
+                            <div class="d-flex flex-column align-items-center">
+                                <form action="<?= app\core\Route::url('route', 'edit_route') ?>"
+                                    method="post">
+                                    <input type="hidden" name="trip_id" value="<?= $trip['id'] ?>">
+                                    <input type="submit" class="btn btn-primary" value="Edit route">
+                                </form>
                             </div>
-<!--                             Likes-->
+                            <div class="travel-map text-center">
+                                <img src="<?= $route['photo'] ?>" alt="<?= $route['photo'] ?>" class="photo-route rounded">
+                            </div>
+                            <!--                             Likes-->
                             <div class="d-flex justify-content-between mt-2">
                                 <form action="<?= app\core\Route::url('route', 'like') ?>" method="post">
                                     <input type="hidden" name="trip_id" value="<?= $trip['id'] ?>">

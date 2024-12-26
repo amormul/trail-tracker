@@ -71,7 +71,7 @@ class TripValidator
         if (!isset($data[$field]) || !filter_var($data[$field], FILTER_VALIDATE_INT)) {
             return [$field => $requiredErrorMessage];
         } else {
-            if(!$this->model->getTableById($table, (int)$data[$field])) {
+            if (!$this->model->getById($table, 'id', (int)$data[$field])) {
                 return [$field => $notExistErrorMessage];
             }
         }

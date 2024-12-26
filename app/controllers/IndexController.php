@@ -57,8 +57,10 @@ class IndexController extends AbstractController
     {
         $tripId = $this->getTripIdFromRequest();
         $trip = $this->getEnrichedTrip($tripId);
-        $route = $this->model_route->getRouteByTripId($tripId) ?? null;
-        $likes_route = $this->model_route->countLikes( $route['id']) ?? 0;
+        $route = $this->model_route->getRouteByTripId($tripId);
+        if ($route) {
+            $likes_route = $this->model_route->countLikes($route['id']) ?? 0;
+        }
         $this->view->render('trip', [
             'title' => 'Trip page',
             'login' => $this->login,
@@ -88,7 +90,6 @@ class IndexController extends AbstractController
     {
         $data = Helpers::getPostData($this->fields);
         $inventory = filter_input(INPUT_POST, 'inventory', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
-
         $errors = $this->validator->validate($data);
         $this->validator->validatePhotoUpload($errors);
 
@@ -141,6 +142,7 @@ class IndexController extends AbstractController
         }
 
         $data['photo'] = $this->processPhotoUpload($data);
+        $data['user_id'] = $this->model->getById('trips', 'id', $data['id']);
 
         $this->model->update($data);
         $this->storeTripInventory($data['id'], $inventory);
@@ -318,7 +320,8 @@ class IndexController extends AbstractController
             $trip['status'] = $this->model->getStatusById($trip['status_id'])['name'];
             $trip['difficulty'] = $this->model->getDifficultyById($trip['difficulty_id'])['name'];
             $trip['likes'] = $this->model->countLikes($trip['id']);
-            $trip['user'] = $this->model->getById('users', 'id', $trip['user_id'])['login'];            return $trip;
+            $trip['user'] = $this->model->getById('users', 'id', $trip['user_id'])['login'];
+            return $trip;
         }, $trips);
     }
 

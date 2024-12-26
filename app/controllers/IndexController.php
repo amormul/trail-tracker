@@ -34,7 +34,6 @@ class IndexController extends AbstractController
         $this->model = new Trip();
         $this->validator = new TripValidator();
     }
-
     /**
      * Display all trips.
      *
@@ -301,7 +300,7 @@ class IndexController extends AbstractController
             return Helpers::savePhoto($this->fileDir, $_FILES['photo']);
         }
 
-        return $this->model->getById('trips', 'id', $data['id'])['photo'];
+        return $this->model_trip->getById($data['id'])['photo'];
     }
 
     /**

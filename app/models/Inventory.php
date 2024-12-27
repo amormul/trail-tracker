@@ -15,7 +15,7 @@ class Inventory extends \app\core\AbstractDB
     public function update(array $inventory): bool
     {
         $stmt = $this->db->prepare("UPDATE inventory SET name = ?, description = ?, photo = ? WHERE id = ?");
-        $stmt->bind_param("sss", $inventory['name'], $inventory['description'], $inventory['photo']);
+        $stmt->bind_param("sssi", $inventory['name'], $inventory['description'], $inventory['photo'], $inventory['id']);
         return $stmt->execute();
     }
     //Delete inventory card

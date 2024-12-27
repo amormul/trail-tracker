@@ -43,14 +43,7 @@ class GalleryController extends AbstractController
         $comment = filter_input(INPUT_POST, 'comment');
         $file = $_FILES['file'];
         $uploadDir = $_SERVER['DOCUMENT_ROOT'] . '/storage/imageGallery/';
-
         $relativePath = $this->handleFileUpload($file, $uploadDir);
-
-        if (!$relativePath) {
-            $this->view->render('error', ['message' => 'File upload failed.']);
-            return;
-        }
-
         $this->gallery->create($userId, $relativePath, $tripId, $comment);
         Route::redirect('/index/show?trip_id=' . $tripId);
     }
@@ -119,10 +112,6 @@ class GalleryController extends AbstractController
         if ($file && $file['error'] === UPLOAD_ERR_OK) {
             $uploadDir = $_SERVER['DOCUMENT_ROOT'] . '/storage/imageGallery/';
             $photoPath = $this->handleFileUpload($file, $uploadDir, $photoPath);
-            if (!$photoPath) {
-                $this->view->render('error', ['message' => 'Failed to upload new photo.']);
-                return;
-            }
         }
         $this->gallery->edit($photoId, $photoPath, $comment);
         Route::redirect('/gallery/viewPhoto?id=' . $photoId);

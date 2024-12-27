@@ -100,11 +100,7 @@ class Route extends \app\core\AbstractDB
             ]);
         }
         return $this->_deleteLike(
-            'route_id',
-            $route_id,
-            'user_id',
-            $user_id
-        );
+            'route_id' ,$route_id,'user_id' , $user_id);
     }
 
     /**

@@ -54,6 +54,7 @@ class RouteController extends \app\core\AbstractController
         $this->session->remote('errors_route');
 
         $trip_id = filter_input(INPUT_POST, 'trip_id', FILTER_VALIDATE_INT);
+        $this->session->trip_id = $trip_id;
         $this->view->render('add_route', [
             'title' => 'Add Route',
             'trip_id' => $trip_id,
@@ -102,6 +103,7 @@ class RouteController extends \app\core\AbstractController
     {
         $trip_id = filter_input(INPUT_POST, 'trip_id', FILTER_VALIDATE_INT);
         $route = $this->model_route->getRouteByTripId($trip_id);
+        $this->session->trip_id = $trip_id;
         if (empty($route)) {
             $route['trip_id'] = $trip_id;
         }

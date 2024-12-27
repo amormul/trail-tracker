@@ -2,12 +2,13 @@
     <div class="content-section card shadow bg-light p-4 mt-2">
         <div class="row">
             <div class="col-7 d-flex justify-content-between align-items-center mb-2">
-                <a href="<?= app\core\Route::url('index','edit') ?>" class="btn btn-primary">Back</a>
+                <a href="<?= app\core\Route::url('index','show') ?>" class="btn btn-primary">Back</a>
                 <h2 class="text-center">Update Route</h2>
             </div>
         </div>
         <form action="<?= \app\core\Route::url('route', 'update') ?>" method="post" enctype="multipart/form-data">
-            <input type="hidden" name="trip_id" value="<?=$route['trip_id']?>"/>
+            <input type="hidden" name="trip_id" value="<?php if(!empty($route['trip_id'])):?>
+                <?=$route['trip_id']?> <?php else:?>0<?php endif;?>"/>
             <div class="row">
                 <!-- Left Column for Photos -->
                 <div class="col-md-4">

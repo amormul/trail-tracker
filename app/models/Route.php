@@ -123,7 +123,6 @@ class Route extends \app\core\AbstractDB
             /* выполнение запроса */
             $stmt->execute();
             $res = $stmt->get_result()->fetch_assoc();
-            var_dump($res);
             /* Связываем переменные результата */
             $count = $res["count"];
         }

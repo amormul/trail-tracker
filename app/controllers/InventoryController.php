@@ -8,13 +8,12 @@ use app\core\Session;
 use app\models\Inventory;
 class InventoryController extends AbstractController
 {
-    protected Inventory $model;
-    protected Session $session;
+    private string $fileDir = 'storage' . DIRECTORY_SEPARATOR . 'imageInventory';
+
     public function __construct()
     {
         parent::__construct();
-        $this->session = new Session();
-        $this->model = new Inventory();
+        $this->loadModel('inventory');
     }
 
     /**
@@ -23,7 +22,7 @@ class InventoryController extends AbstractController
      */
     public function index(): void
     {
-        $inventories = $this->model->getAllInventory();
+        $inventories = $this->model_inventory->getAllInventory();
         $inventories = $inventories ?: [];
         $this->view->render('inventory', [
             'title' => 'Inventory List',
@@ -57,10 +56,10 @@ class InventoryController extends AbstractController
                 'name' => $name,
                 'description' => $description
             ];
-            $photoPath = $this->savePhoto($photo);
+            $photoPath = Helpers::savePhoto($this->fileDir, $photo);
             $inventory['photo'] = $photoPath;
 
-            if ($this->model->create($inventory)) {
+            if ($this->model_inventory->create($inventory)) {
                 Route::redirect('/inventory');
             }
         }else{
@@ -75,7 +74,7 @@ class InventoryController extends AbstractController
     public function edit(): void
     {
         $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
-        $inventory = $this->model->getById('inventory', 'id', $id);
+        $inventory = $this->model_inventory->getById('inventory', 'id', $id);
         $this->view->render('update_inventory', [
             'title' => 'Edit Inventory Item',
             'inventory' => $inventory
@@ -101,12 +100,11 @@ class InventoryController extends AbstractController
             if ($photo && $photo['error'] === UPLOAD_ERR_OK) {
                 $data['photo'] = $this->savePhoto($photo);
             } else {
-            $existing = $this->model->getById('inventory', 'id', $id);
+            $existing = $this->model_inventory->getById('inventory', 'id', $id);
             $data['photo'] = $existing['photo'] ?? null;
         }
-            if ($this->model->update($data)) {
+            if ($this->model_inventory->update($data)) {
                 Route::redirect('/inventory');
-                return;
             }
         }
         Route::redirect('/inventory/edit/?id=' . ($id ?? ''));
@@ -126,7 +124,7 @@ class InventoryController extends AbstractController
         }
         //TODO: validate
 
-        $this->model->delete($id);
+        $this->model_inventory->delete($id);
         Route::redirect('/inventory');
     }
 
@@ -162,7 +160,7 @@ class InventoryController extends AbstractController
             return;
         }
 
-        $inventory = $this->model->getById('inventory', 'id', $inventory_id);
+        $inventory = $this->model_inventory->getById('inventory', 'id', $inventory_id);
 
         if (!$inventory) {
             Route::redirect('/inventory');

@@ -61,8 +61,11 @@ class Helpers
         if(!empty($file)) {
             $fileDir = str_replace('/', DIRECTORY_SEPARATOR, $file);
             $fileDir = ltrim($fileDir, DIRECTORY_SEPARATOR);
-            if (!unlink($fileDir)) {
-                throw new \Exception('Photo was not deleted: ' . $fileDir);
+            if (file_exists($fileDir)) {
+                var_dump(!$fileDir);
+                if (!unlink($fileDir)) {
+                    throw new \Exception('Photo was not deleted: ' . $fileDir);
+                }
             }
         }
     }

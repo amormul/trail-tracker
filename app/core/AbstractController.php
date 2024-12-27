@@ -63,6 +63,9 @@ abstract class AbstractController
     {
         $userModel = new User();
         $user = $userModel->getByLogin($this->login ?? '');
+        if(empty($user)){
+            return 0;
+        }
         return (int)$user['id'];
     }
 

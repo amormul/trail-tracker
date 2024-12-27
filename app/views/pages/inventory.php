@@ -11,7 +11,7 @@
                 <?php foreach ($inventories as $inventory): ?>
                     <div class="col-md-4 mb-4">
                         <div class="card h-100">
-                            <img src="<?= $inventory['photo'] ? '/' . $inventory['photo'] : 'https://via.placeholder.com/300x200' ?>" class="card-img-top" alt="<?= $inventory['name'] ?>">
+                            <img src="<?= $inventory['photo'] ?? 'https://via.placeholder.com/300x200' ?>" class="card-img-top" alt="<?= $inventory['name'] ?>">
                             <div class="card-body d-flex flex-column">
                                 <h5 class="card-title"><?= $inventory['name'] ?></h5>
                                 <p class="card-text"><?= $inventory['description'] ?></p>

@@ -97,10 +97,12 @@ class InventoryController extends AbstractController
                 'name' => $name,
                 'description' => $description
             ];
-            if ($photo && $photo['error'] === UPLOAD_ERR_OK) {
-                $data['photo'] = $this->savePhoto($photo);
-            } else {
             $existing = $this->model_inventory->getById('inventory', 'id', $id);
+            if ($photo && $photo['error'] === UPLOAD_ERR_OK) {
+                $fullPath = $existing['photo'];
+                Helpers::deletePhoto($fullPath);
+                $data['photo'] =  Helpers::savePhoto($this->fileDir, $_FILES['photo']);
+            } else {
             $data['photo'] = $existing['photo'] ?? null;
         }
             if ($this->model_inventory->update($data)) {

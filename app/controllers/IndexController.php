@@ -9,11 +9,13 @@ use app\models\Inventory;
 use app\models\Trip;
 use RuntimeException;
 use app\core\TripValidator;
+use app\models\Gallery;
 
 class IndexController extends AbstractController
 {
     protected Trip $model;
     protected TripValidator $validator;
+    protected Gallery $gallery;
 
     private string $fileDir = 'storage' . DIRECTORY_SEPARATOR . 'imageTrip';
     private array $fields = [
@@ -31,6 +33,7 @@ class IndexController extends AbstractController
         $this->model = new Trip();
         $this->validator = new TripValidator();
         $this->loadModel('route');
+        $this->gallery = new Gallery();
     }
     /**
      * Display all trips.
@@ -64,6 +67,8 @@ class IndexController extends AbstractController
             $likes_route = $this->model_route->countLikes($route['id']) ?? 0;
         }
         $isAuthor = $this->isAuthor($tripId);
+        $photos = $this->gallery->getPhotosByTripId($tripId);
+
         $this->view->render('trip', [
             'title' => 'Trip page',
             'login' => $this->login,
@@ -71,7 +76,8 @@ class IndexController extends AbstractController
             'trip' => $trip,
             'route' => $route,
             'likes_route' => $likes_route,
-            'inventories' => $this->getEnrichedInventory($this->model->getInventoryByTrip($tripId))
+            'inventories' => $this->getEnrichedInventory($this->model->getInventoryByTrip($tripId)),
+            'photos' => $photos
         ]);
     }
 
@@ -301,7 +307,9 @@ class IndexController extends AbstractController
      */
     private function getTripIdFromRequest(): ?int
     {
-        return filter_input(INPUT_POST, 'trip_id', FILTER_VALIDATE_INT) ?? $this->session->trip_id;
+        return filter_input(INPUT_POST, 'trip_id', FILTER_VALIDATE_INT)
+            ?? filter_input(INPUT_GET, 'trip_id', FILTER_VALIDATE_INT)
+            ?? $this->session->trip_id;
     }
 
     /**

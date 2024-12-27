@@ -148,14 +148,14 @@
 
                         <!-- Photo Gallery Section -->
                         <p class="mt-4"><strong>Photo Gallery:</strong></p>
-                        <div class="d-flex flex-column align-items-center mb-4">
-                            <form action="<?= app\core\Route::url('gallery', 'addPhoto') ?>" method="get">
-                                <input type="hidden" name="trip_id" value="<?= $trip['id'] ?>">
-                                <input type="submit" class="btn btn-primary btn-sm" value="Add photo">
-                            </form>
-                        </div>
                         <?php if (empty($photos)): ?>
-                            <p class="font-weight-bold text-center">No photos available</p>
+                            <div class="d-flex flex-column align-items-center">
+                                <p class="font-weight-bold text-center">No photos available</p>
+                                <form action="<?= app\core\Route::url('gallery', 'add') ?>" method="post">
+                                    <input type="hidden" name="trip_id" value="<?= $trip['id'] ?>">
+                                    <input type="submit" class="btn btn-primary btn-sm" value="Add photo">
+                                </form>
+                            </div>
                         <?php else: ?>
                             <div class="row">
                                 <?php foreach ($photos as $photo): ?>

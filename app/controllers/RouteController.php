@@ -58,6 +58,7 @@ class RouteController extends \app\core\AbstractController
             'title' => 'Add Route',
             'trip_id' => $trip_id,
             'errors' => $errors,
+            'login' => $this->login,
         ]);
     }
     /**
@@ -116,6 +117,7 @@ class RouteController extends \app\core\AbstractController
             'route' => $route,
             'exist_photo' => $exist_photo,
             'errors' => $errors,
+            'login' => $this->login,
         ]);
     }
     /**

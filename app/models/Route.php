@@ -6,41 +6,18 @@ use app\core\Helpers;
 
 class Route extends \app\core\AbstractDB
 {
-    private string $fileDir = 'storage' . DIRECTORY_SEPARATOR . 'imageRoute' . DIRECTORY_SEPARATOR;
+    private string $fileDir = "storage" . DIRECTORY_SEPARATOR . "imageRoute";
     private string $file = '';
-    public function __construct()
-    {
-        parent::__construct();
-    }
-
-    /**
-     * returns route parameters by identifier
-     * @param int $id
-     * @return array|null
-     */
-    public function getRouteById(int $id): array | null
-    {
-        return $this->getById('rotes', 'route_id', $id);
-    }
-
+    protected $table = 'routes';
+    protected $tableLike = 'likes_route';
     /**
      * returns route parameters by trip identifier
-     * @param int $id
-     * @return array|null|bool
+     * @param int $trip_id
+     * @return array|null
      */
-    public function getByTripId(int $id): array | null | bool
+    public function getRouteByTripId(int $trip_id): array | null
     {
-        $query = "SELECT * FROM routes WHERE trip_id = ?;";
-        /* создание подготавливаемого запроса */
-        if ($stmt = $this->db->prepare($query)) {
-            /* связывание параметров с метками */
-            $stmt->bind_param("i", $id);
-            /* выполнение запроса */
-            $stmt->execute();
-            /* Связываем переменные результата */
-            return $stmt->get_result()->fetch_assoc();
-        }
-        return null;
+        return $this->getById($this->table, 'trip_id', $trip_id);
     }
 
     /**
@@ -52,17 +29,14 @@ class Route extends \app\core\AbstractDB
     public function create(array $data): bool
     {
         $this->file = Helpers::savePhoto($this->fileDir, $data['photo']);
-        $data['trip_id'] = 1;
-        var_dump($data);
-        $query = "INSERT INTO routes (trip_id, description,photo) VALUES ( ?,?,?);";
-        /* создание подготавливаемого запроса */
-        if ($stmt = $this->db->prepare($query)) {
-            /* связывание параметров с метками */
-            $stmt->bind_param("iss", $data['trip_id'], $data['description'], $this->file);
-            /* выполнение запроса */
-            return $stmt->execute();
-        }
-        return false;
+        return $this->add(
+            [
+                "trip_id" => $data["trip_id"],
+                "photo" => $this->file,
+                "description" => $data["description"],
+            ],
+            "iss"
+        );
     }
 
     /**
@@ -73,7 +47,7 @@ class Route extends \app\core\AbstractDB
      */
     function deletePhoto(int $trip_id): void
     {
-        $route = $this->getByTripId($trip_id);
+        $route = $this->getWhere('trip_id', $trip_id, 'i');
         if (!empty($route['photo'])) {
             $this->file = $route['photo'];
             Helpers::deletePhoto($this->file);
@@ -82,16 +56,22 @@ class Route extends \app\core\AbstractDB
     }
     /**
      * updates  route by id
-     * @param array $route
+     * @param array $data
      * @return bool
      * @throws \Exception
      */
     public function update(array $data): bool
     {
-        $this->deletePhoto($data['trip_id']);
-        $this->file = Helpers::savePhoto($this->fileDir, $data['photo']);
-        $data['trip_id'] = 1;
-        var_dump($data);
+        $this->file = '';
+        $photo = $data['photo'];
+        if (empty($photo['name'])) {
+            if (!empty($data['file'])) {
+                $this->file = $data['file'];
+            }
+        } else {
+            $this->deletePhoto($data['trip_id']);
+            $this->file = Helpers::savePhoto($this->fileDir, $photo);
+        }
         $query = "UPDATE routes SET description=?,photo=? WHERE trip_id = ?;";
         /* создание подготавливаемого запроса */
         if ($stmt = $this->db->prepare($query)) {
@@ -104,41 +84,23 @@ class Route extends \app\core\AbstractDB
     }
 
     /**
-     * adds a like to the route from the user
+     *  adds or deletes a like to the route from the user
      * @param int $route_id
      * @param int $user_id
      * @return bool
+     * @throws \Exception
      */
     public function like(int $route_id, int $user_id): bool
     {
-        $query = "SELECT * FROM likes_route WHERE route_id = ? AND user_id = ?;";
-        /* создание подготавливаемого запроса */
-        if ($stmt = $this->db->prepare($query)) {
-            /* связывание параметров с метками */
-            $stmt->bind_param("ii", $route_id, $user_id);
-            /* выполнение запроса */
-            $stmt->execute();
-            $res = $stmt->get_result()->fetch_assoc();
-            if (empty($res)) {
-                return $this->addLike($route_id, $user_id);
-            } else {
-                return $this->deleteLike($route_id, $user_id);
-            }
+        $like = $this->getWhereLike('route_id', $route_id, 'user_id', $user_id);
+        if (empty($like)) {
+            return $this->_addLike([
+                "route_id" => $route_id,
+                "user_id" => $user_id,
+            ]);
         }
-        return false;
-    }
-
-    public function addLike(int $route_id, int $user_id): bool
-    {
-        $query = "INSERT INTO likes_route (route_id, user_id) VALUES (?, ?);";
-        /* создание подготавливаемого запроса */
-        if ($stmt = $this->db->prepare($query)) {
-            /* связывание параметров с метками */
-            $stmt->bind_param("ii", $route_id, $user_id);
-            /* выполнение запроса */
-            return $stmt->execute();
-        }
-        return false;
+        return $this->_deleteLike(
+            'route_id' ,$route_id,'user_id' , $user_id);
     }
 
     /**
@@ -161,24 +123,5 @@ class Route extends \app\core\AbstractDB
             $count = $res["count"];
         }
         return $count;
-    }
-
-    /**
-     * deletes like record
-     * @param int $route_id
-     * @param int $user_id
-     * @return bool
-     */
-    public function deleteLike(int $route_id, int $user_id): bool
-    {
-        $query = "DELETE FROM likes_route WHERE route_id = ? AND user_id = ?;";
-        /* создание подготавливаемого запроса */
-        if ($stmt = $this->db->prepare($query)) {
-            /* связывание параметров с метками */
-            $stmt->bind_param("ii", $route_id, $user_id);
-            /* выполнение запроса */
-            return $stmt->execute();
-        }
-        return false;
     }
 }

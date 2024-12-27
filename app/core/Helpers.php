@@ -19,6 +19,7 @@ class Helpers
 
         return $data;
     }
+
     /**
      * copying a file Photo from temp folder to folder images
      * @param string $path
@@ -26,22 +27,24 @@ class Helpers
      * @return string
      * @throws \Exception
      */
-    public static function savePhoto(string $path, array $photo = null): string
+    public static function savePhoto(string $path, array $photo=null): string
     {
         $file = '';
-        if (empty($photo)) {
+        if(empty($photo)){
             return $file;
         }
         if (!empty($photo['name'])) {
             $extension = pathinfo($photo['name'], PATHINFO_EXTENSION);
-            $uniqueName = uniqid() . '.' . $extension;
-            $fileDir = ltrim($path, DIRECTORY_SEPARATOR);
+            $uniqueName = 'img_' . uniqid() . '.' . $extension;
+            $fileDir = str_replace('/', DIRECTORY_SEPARATOR, $path);
+            $fileDir = ltrim($fileDir, DIRECTORY_SEPARATOR);
             $file = $fileDir . DIRECTORY_SEPARATOR . $uniqueName;
             if (!move_uploaded_file($photo['tmp_name'], $file)) {
                 $file = '';
                 throw new \Exception('Photo was not uploaded: ' . $file);
             }
             $file = DIRECTORY_SEPARATOR . $file;
+            $file = str_replace('\\', '/', $file);
         }
         return $file;
     }
@@ -49,17 +52,22 @@ class Helpers
 
     /**
      * deleting a file Photo from  folder images
-     * @param array $data
+     * @param string $file
      * @return void
      * @throws \Exception
      */
     public static function deletePhoto(string $file): void
     {
-        if (!empty($file)) {
-            $fileDir = ltrim($file, DIRECTORY_SEPARATOR);
-            if (!unlink($fileDir)) {
-                throw new \Exception('Photo was not deleted: ' . $file);
+        if(!empty($file)) {
+            $fileDir = str_replace('/', DIRECTORY_SEPARATOR, $file);
+            $fileDir = ltrim($fileDir, DIRECTORY_SEPARATOR);
+            if (file_exists($fileDir)) {
+                var_dump(!$fileDir);
+                if (!unlink($fileDir)) {
+                    throw new \Exception('Photo was not deleted: ' . $fileDir);
+                }
             }
         }
     }
+
 }
